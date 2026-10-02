@@ -1,78 +1,340 @@
 'use client';
 
-import { useLayoutEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { history } from '@/content/site';
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useTransform,
+  type AnimationPlaybackControls,
+  type MotionValue,
+  type PanInfo,
+  type Variants,
+} from 'motion/react';
+import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react';
+import Reveal from '@/components/ui/Reveal';
+import pattern from '@/assets/pattern.png';
+import { history, historyHead } from '@/content/site';
+
+const total = history.length;
+const easeOut = [0.16, 1, 0.3, 1] as const;
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+const mod = (n: number, m: number) => ((n % m) + m) % m;
+/** The shortest way round the circle from the middle to a card, in cards: -total/2 up to total/2. */
+const around = (d: number) => mod(d + total / 2, total) - total / 2;
+
+/** How much smaller a card is 0, 1, 2 and 3 or more places from the middle. */
+const SHRINK = [0, 0.18, 0.34, 0.44];
+const shrink = (a: number) => {
+  const i = Math.min(Math.floor(a), SHRINK.length - 1);
+  const j = Math.min(i + 1, SHRINK.length - 1);
+  return SHRINK[i] + (SHRINK[j] - SHRINK[i]) * (a - i);
+};
+/**
+ * How far a card is pulled toward the middle, in card widths: half of its own
+ * shrink plus the whole shrink of every card between it and the middle. This is
+ * what keeps the gap between any two neighbours the same at every position.
+ * `pull(2)` is 0.35, which is where the 3.3 in `.era-rail` (globals.css) comes from.
+ */
+const pull = (a: number) => {
+  let p = shrink(a) / 2;
+  for (let k = a - 1; k >= 0; k -= 1) p += shrink(k);
+  return p;
+};
+/** Cards further out than this are off screen; they all wait at the same spot. */
+const REACH = 3.2;
 
 /**
- * Timeline. On md+ with motion allowed, vertical scroll pans the track sideways
- * while the section is pinned. On phones or with reduced motion it is a native
- * horizontal scroll-snap row.
+ * The history page: a circular carousel of tall rounded cards, one per year.
+ * Five are on screen: the middle one at full size, one on each side a little
+ * smaller, and one more on each side, smaller again and cut in half by the
+ * edge of the screen. It has no first or last card: after 2026 comes 1936.
+ *
+ * The cards are not in a scrolling box. One number, `position`, says which
+ * card is in the middle (2.5 is halfway between the third and fourth), and
+ * every card works out its own place, size and dimming from how far round the
+ * circle it is from that number. That is what makes the loop endless without
+ * copies of the cards.
+ *
+ * `position` moves with a finger or mouse drag, a sideways trackpad scroll, the
+ * arrow keys, the two buttons, or a click on a side card, and then settles on
+ * the nearest card with a spring. Vertical swipes still scroll the page.
+ *
+ * Below 768px the cards are too narrow for text, so they show only the year,
+ * set upright along the card, and the title and story of the middle card sit
+ * underneath the carousel.
+ *
+ * Under reduced motion the carousel jumps from card to card instead of gliding.
  */
 export default function History() {
-  const section = useRef<HTMLElement>(null);
-  const track = useRef<HTMLOListElement>(null);
+  const rail = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
-  const [distance, setDistance] = useState(0);
-  const [pinned, setPinned] = useState(false);
+  const [active, setActive] = useState(0);
 
-  useLayoutEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const measure = () => {
-      const on = mq.matches && !reduce;
-      setPinned(on);
-      if (on && track.current) setDistance(Math.max(0, track.current.scrollWidth - window.innerWidth));
+  const position = useMotionValue(0);
+  /** Where the carousel is heading, in whole cards. Not wrapped: it keeps counting up or down. */
+  const aim = useRef(0);
+  const run = useRef<AnimationPlaybackControls | null>(null);
+
+  useMotionValueEvent(position, 'change', (p) => {
+    const i = mod(Math.round(p), total);
+    setActive((prev) => (prev === i ? prev : i));
+  });
+
+  function settle(target: number, velocity = 0) {
+    aim.current = target;
+    run.current?.stop();
+    if (reduce) {
+      position.set(target);
+      return;
+    }
+    // No overshoot: the card glides in and stops.
+    run.current = animate(position, target, { type: 'spring', stiffness: 170, damping: 26, velocity });
+  }
+
+  /** How many px the middle card travels to become the next card over. */
+  function stride() {
+    const el = rail.current;
+    const card = el?.querySelector<HTMLElement>('[data-era]');
+    if (!el || !card) return 1;
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    return card.offsetWidth * (1 - pull(1)) + gap;
+  }
+
+  // Drag with a finger or the mouse.
+  const grab = useRef({ from: 0, px: 1 });
+  const dragged = useRef(false);
+
+  function onPanStart() {
+    run.current?.stop();
+    dragged.current = true;
+    grab.current = { from: position.get(), px: stride() };
+  }
+  function onPan(_: PointerEvent, info: PanInfo) {
+    position.set(grab.current.from - info.offset.x / grab.current.px);
+  }
+  function onPanEnd(_: PointerEvent, info: PanInfo) {
+    // Let go: carry the throw a little further, then settle on the nearest card. Both the
+    // speed (cards per second) and the throw are capped, so the hardest flick still moves
+    // the carousel two or three cards, not a spin.
+    const speed = clamp(-info.velocity.x / grab.current.px, -14, 14);
+    settle(Math.round(position.get() + clamp(speed * 0.18, -2.4, 2.4)), speed);
+    // The click that ends a drag must not count as a click on a card.
+    setTimeout(() => (dragged.current = false), 0);
+  }
+
+  // A sideways scroll on a trackpad moves the carousel; up and down still scrolls the page.
+  useEffect(() => {
+    const el = rail.current;
+    if (!el) return;
+    let idle: ReturnType<typeof setTimeout>;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      run.current?.stop();
+      position.set(position.get() + e.deltaX / stride());
+      clearTimeout(idle);
+      idle = setTimeout(() => settle(Math.round(position.get())), 110);
     };
-    measure();
-    const ro = new ResizeObserver(measure);
-    if (track.current) ro.observe(track.current);
-    mq.addEventListener('change', measure);
-    window.addEventListener('resize', measure);
+    el.addEventListener('wheel', onWheel, { passive: false });
     return () => {
-      ro.disconnect();
-      mq.removeEventListener('change', measure);
-      window.removeEventListener('resize', measure);
+      el.removeEventListener('wheel', onWheel);
+      clearTimeout(idle);
     };
-  }, [reduce]);
+    // `settle` only reads refs and `reduce`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [position, reduce]);
 
-  const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end end'] });
-  const x = useTransform(scrollYProgress, [0, 1], [0, -distance]);
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    settle(aim.current + (e.key === 'ArrowRight' ? 1 : -1));
+  }
+
+  function pick(index: number) {
+    if (dragged.current) return;
+    const away = Math.round(around(index - position.get()));
+    if (away !== 0) settle(Math.round(position.get()) + away);
+  }
+
+  // The five cards on screen arrive one after another, left to right.
+  const deal: Variants = {
+    hidden: { opacity: 0, transform: `translate3d(${reduce ? 0 : 72}px, 0, 0)` },
+    show: (slot: number) => ({
+      opacity: 1,
+      transform: 'translate3d(0px, 0, 0)',
+      transition: { duration: reduce ? 0.3 : 0.8, delay: reduce ? 0 : 0.05 + slot * 0.06, ease: easeOut },
+    }),
+  };
 
   return (
     <section
-      id="istorija"
-      ref={section}
-      className="relative bg-surface"
-      style={pinned ? { height: `calc(100svh + ${distance}px)` } : undefined}
+      aria-labelledby="istorija-naslov"
+      className="era-rail flex min-h-[100svh] flex-col pb-7 pt-[calc(env(safe-area-inset-top,0px)+7.75rem)] sm:pb-10 sm:pt-32"
     >
-      <div className={pinned ? 'sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden' : 'py-24'}>
-        <div className="shell">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">Od 1936.</p>
-          <h2 className="display mt-4 max-w-[16ch] text-[clamp(2.5rem,5.5vw,5rem)]">Devet decenija sa mosta</h2>
-        </div>
+      <div className="shell flex items-end justify-between gap-8">
+        <Reveal>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">{historyHead.eyebrow}</p>
+          {/* On phones the size is worked out from the screen width so that "Devet decenija"
+              exactly fills the first line (it is 11 em wide in this typeface). From 1024px the
+              title runs on one line, which leaves the cards more height. */}
+          <h2
+            id="istorija-naslov"
+            className="display mt-3 max-w-[16ch] text-[min(2.6rem,calc((100vw-2rem)/11.2))] sm:text-[clamp(2.25rem,5.5vw,4rem)] lg:max-w-none lg:text-[clamp(2.5rem,3.6vw,3.5rem)]"
+          >
+            {historyHead.title}
+          </h2>
+        </Reveal>
 
-        <motion.ol
-          ref={track}
-          style={pinned ? { x } : undefined}
-          className={`mt-12 flex gap-5 px-4 md:mt-16 md:gap-8 md:px-10 ${
-            pinned ? 'w-max' : 'snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none]'
-          }`}
+        <div className="hidden shrink-0 items-center gap-3 md:flex">
+          <button type="button" onClick={() => settle(aim.current - 1)} aria-label="Prethodna godina" className="btn btn-ghost size-12 justify-center p-0">
+            <ArrowLeftIcon size={20} weight="bold" />
+          </button>
+          <button type="button" onClick={() => settle(aim.current + 1)} aria-label="Sljedeća godina" className="btn btn-ghost size-12 justify-center p-0">
+            <ArrowRightIcon size={20} weight="bold" />
+          </button>
+        </div>
+      </div>
+
+      {/* The carousel. Every card sits in the middle of this box and is moved out to its place
+          by its own transform; the box cuts off whatever reaches past the screen edge. */}
+      <div className="flex flex-1 items-center">
+        <motion.div
+          ref={rail}
+          role="group"
+          aria-roledescription="karusel"
+          aria-label="Istorija po godinama"
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          onPanStart={onPanStart}
+          onPan={onPan}
+          onPanEnd={onPanEnd}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.35 }}
+          className="w-full touch-pan-y select-none overflow-x-clip pb-11 pt-3 [column-gap:var(--gap)] pointer-fine:cursor-grab pointer-fine:active:cursor-grabbing"
         >
-          {history.map((h) => (
-            <li
-              key={h.year}
-              className="flex w-[78vw] shrink-0 snap-start flex-col justify-between rounded-[var(--radius)] border border-line bg-bg p-6 sm:w-[46vw] md:h-[46svh] md:w-[34vw] md:p-8 lg:w-[26vw]"
-            >
-              <p className="display text-[clamp(3.25rem,6vw,5.5rem)] text-accent">{h.year}</p>
-              <div className="mt-10">
-                <h3 className="text-xl font-semibold">{h.title}</h3>
-                <p className="mt-3 leading-relaxed text-muted">{h.text}</p>
-              </div>
-            </li>
-          ))}
-          <li aria-hidden className="w-px shrink-0" />
-        </motion.ol>
+          <ul className="relative h-[var(--card-h)]">
+            {history.map((item, i) => (
+              <Era
+                key={item.year}
+                item={item}
+                index={i}
+                position={position}
+                current={active === i}
+                entrance={deal}
+                slot={clamp(Math.round(around(i)) + 2, 0, 4)}
+                onPick={() => pick(i)}
+              />
+            ))}
+          </ul>
+        </motion.div>
+      </div>
+
+      {/* Phones and small tablets: the story of the middle card. All eight are stacked in one
+          spot and each fades in as its card reaches the middle, so the block never changes
+          height. Screen readers get the same text from the cards themselves. */}
+      <div aria-hidden className="shell grid md:hidden">
+        {history.map((item, i) => (
+          <Caption key={item.year} item={item} index={i} position={position} />
+        ))}
       </div>
     </section>
+  );
+}
+
+type Item = (typeof history)[number];
+
+type EraProps = {
+  item: Item;
+  index: number;
+  position: MotionValue<number>;
+  current: boolean;
+  entrance: Variants;
+  /** 0 to 4, left to right, for the five cards on screen at the start: the order they arrive in. */
+  slot: number;
+  onPick: () => void;
+};
+
+function Era({ item, index, position, current, entrance, slot, onPick }: EraProps) {
+  // Signed distance round the circle from the middle, in cards.
+  const distance = useTransform(position, (p) => around(index - p));
+  const transform = useTransform(distance, (d) => {
+    const a = Math.min(Math.abs(d), REACH);
+    const side = Math.sign(d);
+    // Card widths as a percentage of the card itself, plus one gap per card passed.
+    return `translate3d(calc(${(side * (a - pull(a)) * 100).toFixed(2)}% + ${(side * a).toFixed(3)} * var(--gap)), 0, 0) scale(${(1 - shrink(a)).toFixed(4)})`;
+  });
+  const opacity = useTransform(distance, (d) => {
+    const a = Math.abs(d);
+    return a <= 1 ? 1 - 0.18 * a : 0.82 - 0.27 * Math.min(a - 1, 1);
+  });
+  // 1 for the card in the middle, 0 from one card away: its shadow and its pattern.
+  const lift = useTransform(distance, (d) => clamp(1 - Math.abs(d), 0, 1));
+
+  // "1970-e" is set as a big 1970 with a small raised -e, like the "m" in the hero's "12 m".
+  const [year, suffix] = item.year.split(/(?=-)/);
+
+  return (
+    <motion.li
+      data-era
+      style={{ transform, opacity }}
+      aria-current={current ? 'true' : undefined}
+      className="@container absolute left-1/2 top-0 ml-[calc(var(--card-w)/-2)] w-[var(--card-w)] will-change-transform"
+    >
+      {/* The entrance slides this inner layer; the list item above is busy holding its place. */}
+      <motion.div variants={entrance} custom={slot}>
+        {/* Type, padding and corners are sized in cqi, against the list item (the container). */}
+        <article
+          onClick={onPick}
+          className="squircle relative isolate flex h-[var(--card-h)] flex-col justify-between bg-panel p-[8cqi] text-on-panel"
+        >
+          <motion.div aria-hidden style={{ opacity: lift }} className="pointer-events-none absolute inset-0 -z-10">
+            <span className="squircle absolute inset-0 shadow-[0_30px_46px_-28px_rgb(0_25_40/0.75)]" />
+            {/* The same artwork on every card, cropped and mirrored differently so no two match. */}
+            <span className="squircle absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_bottom,black_10%,transparent_72%)]">
+              <Image
+                src={pattern}
+                alt=""
+                fill
+                sizes="30vw"
+                draggable={false}
+                className={`object-cover opacity-25 ${index % 2 ? '-scale-x-100' : ''}`}
+                style={{ objectPosition: `50% ${(index * 37) % 100}%` }}
+              />
+            </span>
+          </motion.div>
+
+          {/* The year. Below 768px it is the whole card: upright, reading from the bottom up, as
+              large as the card's height allows. From 768px it is a headline across the top. */}
+          <p className="display whitespace-nowrap text-accent max-md:absolute max-md:inset-0 max-md:grid max-md:place-items-center md:text-[22cqi]">
+            {/* cqw, not cqi: in upright text the "inline" direction is vertical, and the card is
+                only a container for its width. 3.7 em is the length of the longest year. */}
+            <span className="max-md:rotate-180 max-md:text-[min(50cqw,calc((var(--card-h)-22cqw)/3.7))] max-md:leading-none max-md:[writing-mode:vertical-rl]">
+              {year}
+              {suffix && <span className="align-top text-[0.4em]">{suffix}</span>}
+            </span>
+          </p>
+          <div className="max-md:sr-only">
+            <h3 className="text-[clamp(1.05rem,7.6cqi,1.6rem)] font-semibold leading-tight">{item.title}</h3>
+            <p className="mt-[3.5cqi] text-[clamp(0.8125rem,5.5cqi,1.125rem)] leading-snug text-on-panel/75">{item.text}</p>
+          </div>
+        </article>
+      </motion.div>
+    </motion.li>
+  );
+}
+
+function Caption({ item, index, position }: { item: Item; index: number; position: MotionValue<number> }) {
+  // Fully there in the middle, gone by 0.4 of a card away, so two never show at once.
+  const opacity = useTransform(position, (p) => clamp(1 - 2.5 * Math.abs(around(index - p)), 0, 1));
+  return (
+    <motion.div style={{ opacity }} className="col-start-1 row-start-1 mx-auto max-w-[38ch] text-center">
+      <p className="text-lg font-semibold leading-tight">{item.title}</p>
+      <p className="mt-2 text-[0.95rem] leading-normal text-muted">{item.text}</p>
+    </motion.div>
   );
 }

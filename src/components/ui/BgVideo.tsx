@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 
 type BgVideoProps = {
   /** Landscape encode and its first frame. */
@@ -11,6 +11,8 @@ type BgVideoProps = {
   /** Portrait encode and its first frame, used when the viewport is taller than wide. */
   tall: string;
   posterTall: string;
+  /** Start slightly zoomed in and ease back to normal size as the block scrolls up to the top of the screen. */
+  settle?: boolean;
   className?: string;
 };
 
@@ -20,11 +22,20 @@ type BgVideoProps = {
  * the screen orientation. The poster is the video's own first frame, so the
  * handover is invisible. Under reduced motion (or if the browser refuses to
  * autoplay) the poster simply stays.
+ *
+ * With `settle` the picture arrives a little zoomed in and eases back to its
+ * real size while the block travels from the bottom of the screen to the top.
  */
-export default function BgVideo({ wide, posterWide, tall, posterTall, className = '' }: BgVideoProps) {
+export default function BgVideo({ wide, posterWide, tall, posterTall, settle = false, className = '' }: BgVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [live, setLive] = useState(false);
+
+  const { scrollYProgress } = useScroll({ target: frame, offset: ['start end', 'start start'] });
+  const zoom = useTransform(scrollYProgress, (p) =>
+    !settle || reduce ? 'none' : `scale(${(1.14 - 0.14 * Math.min(1, Math.max(0, p))).toFixed(4)})`,
+  );
 
   useEffect(() => {
     const video = ref.current;
@@ -50,20 +61,22 @@ export default function BgVideo({ wide, posterWide, tall, posterTall, className 
   }, [reduce, wide, tall]);
 
   return (
-    <div aria-hidden className={`overflow-hidden ${className}`}>
-      <Image src={posterWide} alt="" fill sizes="100vw" className="hidden object-cover landscape:block" />
-      <Image src={posterTall} alt="" fill sizes="100vw" className="object-cover landscape:hidden" />
-      <video
-        ref={ref}
-        muted
-        loop
-        playsInline
-        preload="none"
-        disablePictureInPicture
-        tabIndex={-1}
-        onPlaying={() => setLive(true)}
-        className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ease-out ${live ? 'opacity-100' : 'opacity-0'}`}
-      />
+    <div ref={frame} aria-hidden className={`overflow-hidden ${className}`}>
+      <motion.div style={{ transform: zoom }} className="absolute inset-0">
+        <Image src={posterWide} alt="" fill sizes="100vw" className="hidden object-cover landscape:block" />
+        <Image src={posterTall} alt="" fill sizes="100vw" className="object-cover landscape:hidden" />
+        <video
+          ref={ref}
+          muted
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          tabIndex={-1}
+          onPlaying={() => setLive(true)}
+          className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ease-out ${live ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </motion.div>
     </div>
   );
 }

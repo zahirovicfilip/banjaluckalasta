@@ -58,7 +58,7 @@ export default function HeroDive() {
   const outroOpacity = useRamp(p, [0.86, 0.92], [0, 1]);
 
   return (
-    <div ref={ref} id="top" className="relative">
+    <div ref={ref} className="relative">
       {/* Text layer sits behind the diver; the stage ignores the pointer so CTAs stay clickable. */}
       <div className="absolute inset-0 z-0 overflow-x-clip">
         <div className="shell sticky top-0 h-[100svh]">

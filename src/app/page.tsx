@@ -1,4 +1,5 @@
 import Nav from '@/components/Nav';
+import PageStack from '@/components/PageStack';
 import Hero from '@/components/sections/Hero';
 import Stats from '@/components/sections/Stats';
 import Technique from '@/components/sections/Technique';
@@ -17,17 +18,24 @@ export default function Home() {
     <>
       <Nav />
       <main id="main">
-        <Hero />
-        <Stats />
-        <Technique />
-        <History />
-        <People />
-        <Results />
-        {/* The quote poster lives in the hero unless the animated hero is switched on. */}
-        {hero.animated && <Quote />}
-        <Videos />
-        <Camp />
-        <Join />
+        {/* The hero and the history page hold still while the next page slides over them.
+            The camp opener is the sheet that covers the history page. */}
+        <PageStack
+          pages={[
+            { id: 'top', node: <Hero /> },
+            { id: 'istorija', node: <History /> },
+          ]}
+        >
+          <Camp />
+          <Stats />
+          <Technique />
+          <People />
+          <Results />
+          {/* The quote poster lives in the hero unless the animated hero is switched on. */}
+          {hero.animated && <Quote />}
+          <Videos />
+          <Join />
+        </PageStack>
       </main>
       <Footer />
     </>

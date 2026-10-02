@@ -13,16 +13,26 @@ import { ytImage } from '@/lib/youtube';
 /**
  * The camp chapter: the drone fly-in over Jezero Manjača as an opener, the
  * week's programme, the jump clips from the finale, then the kit and the
- * club's work off the tower.
+ * club's work off the tower. It follows the history page.
  */
 export default function Camp() {
   return (
     <>
-      <section id="kamp" className="relative isolate flex min-h-[92svh] flex-col justify-end overflow-hidden bg-deep text-white">
-        <BgVideo {...camp.video} className="absolute inset-0 -z-20" />
+      {/*
+        The third page of the stack (see PageStack): it slides over the history page as a sheet
+        with a rounded top edge, and the drone shot eases out of a slight zoom as it arrives.
+        The negative scroll margin cancels the page's 88px anchor offset and adds the corner
+        radius, so the "Kamp" link lands with the video filling the screen and the rounded
+        corners just above it. The section is that much taller to make up for it.
+      */}
+      <section
+        id="kamp"
+        className="relative isolate flex min-h-[calc(92svh+2.25rem)] -scroll-mt-[calc(88px+2.25rem)] flex-col justify-end overflow-hidden rounded-t-[2.25rem] bg-deep text-white sm:min-h-[calc(92svh+3rem)] sm:-scroll-mt-[calc(88px+3rem)] sm:rounded-t-[3rem]"
+      >
+        <BgVideo {...camp.video} settle className="absolute inset-0 -z-20" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-deep via-deep/50 to-deep/10" />
 
-        <div className="shell pb-14 pt-36 md:pb-20">
+        <div className="shell pb-14 pt-44 md:pb-20">
           <Reveal>
             <div className="flex items-center gap-5">
               {camp.showSeal && <Image src={seal} alt={camp.sealAlt} className="size-14 md:size-16" />}

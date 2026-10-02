@@ -6,8 +6,11 @@
  * One accent (the blue), cool neutrals, auto light/dark.
  *
  * Shape rule: interactive controls (buttons, chips, tabs) are full pills;
- * surfaces (media, panels, inputs) use --radius. Nothing else.
- * Z-index scale: hero text 0, hero figure 10, phone menu 40, nav 50, skip link 60.
+ * surfaces (media, panels, inputs) use --radius. Two exceptions, both large
+ * shapes: the history cards (.squircle) and the rounded top edge of a page
+ * that slides over the one before it.
+ * Z-index scale: stacked pages 0, 10 and 20 (see PageStack), phone menu 40,
+ * nav 50, skip link 60.
  * The navbar is a floating pill in the flat brand blue.
  */
 :root {
@@ -239,6 +242,71 @@ button,
 }
 
 /*
+ * Stacked pages (PageStack). A page holds still while the next one slides over
+ * it. One that is taller than the screen scrolls first and holds at its bottom
+ * edge, so nothing on it is cut off; --page-h is its measured height.
+ * Not inside a layer on purpose: it has to win over the `relative` utility,
+ * which is what applies under reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .stack-page {
+    position: sticky;
+    top: min(0px, calc(100svh - var(--page-h, 100svh)));
+  }
+}
+
+/*
+ * History carousel (History.tsx): five cards across the screen. The middle one
+ * is full size, the two beside it are 82% and fully visible, and the two after
+ * those are 66% with their centre exactly on the screen edge, so the edge cuts
+ * them in half. 3.3 is what those sizes add up to in card widths (see `pull`
+ * in History.tsx); if the sizes change there, this number has to follow.
+ *
+ * The height comes from the screen height so the whole page fits one screen,
+ * within limits that keep the cards upright: tall narrow tiles on phones, less
+ * tall from 768px, where they are wide enough to hold their text. The rem
+ * amounts are what the heading, the paddings and (on phones) the text under
+ * the carousel take up.
+ */
+.era-rail {
+  --gap: 0.5rem;
+  --card-w: calc((100vw - 4 * var(--gap)) / 3.3);
+  --card-h: clamp(calc(var(--card-w) * 1.6), calc(100svh - 27.5rem), calc(var(--card-w) * 2.2));
+}
+@media (min-width: 640px) {
+  .era-rail {
+    --gap: 1rem;
+  }
+}
+@media (min-width: 768px) {
+  .era-rail {
+    --card-h: clamp(calc(var(--card-w) * 1.15), calc(100svh - 24rem), calc(var(--card-w) * 1.9));
+  }
+}
+@media (min-width: 1024px) {
+  .era-rail {
+    --gap: 1.25rem;
+    --card-h: clamp(calc(var(--card-w) * 1.15), calc(100svh - 22rem), calc(var(--card-w) * 1.5));
+  }
+}
+
+/*
+ * History cards: one large continuous corner, sized from the card's own width
+ * (cqi), since the cards go from about 100px wide on a phone to over 400px.
+ * Browsers that know corner-shape draw a true squircle (it needs a bigger
+ * radius to look the same size); the rest get a plain round corner.
+ */
+.squircle {
+  border-radius: min(2.75rem, 24cqi);
+}
+@supports (corner-shape: squircle) {
+  .squircle {
+    corner-shape: squircle;
+    border-radius: min(4.25rem, 38cqi);
+  }
+}
+
+/*
  * Poster hero entrance. Plain CSS, so it starts with the first paint (no wait
  * for JavaScript) and stays smooth while the page loads. `backwards` holds the
  * first frame through the delay and then lets go of the element completely.
@@ -260,6 +328,12 @@ button,
     transform: translateY(-1.6%);
   }
 }
+/* Touch screens: a bigger, slightly swaying hover, since there is no mouse to bring him to life. */
+@keyframes hero-float-touch {
+  50% {
+    transform: translateY(-5%) rotate(-1.4deg);
+  }
+}
 @keyframes hero-fade {
   from {
     opacity: 0;
@@ -279,6 +353,11 @@ button,
   }
   .hero-float {
     animation: hero-float 7s ease-in-out 1.7s infinite;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .hero-float {
+      animation: hero-float-touch 5s ease-in-out 1.7s infinite;
+    }
   }
 }
 

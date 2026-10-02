@@ -23,12 +23,13 @@ export const socials = [
   { id: 'facebook', label: 'Facebook', handle: 'Banjalučka Lasta', href: 'https://www.facebook.com/p/Banjalu%C4%8Dka-Lasta-61563609915496/' },
 ] as const;
 
+// Same order as the sections on the page.
 export const nav = [
-  { label: 'Lasta', href: '#lasta' },
   { label: 'Istorija', href: '#istorija' },
+  { label: 'Kamp', href: '#kamp' },
+  { label: 'Lasta', href: '#lasta' },
   { label: 'Skakači', href: '#skakaci' },
   { label: 'Rezultati', href: '#rezultati' },
-  { label: 'Kamp', href: '#kamp' },
 ];
 
 /** One label per intent, used everywhere on the page. */
@@ -83,6 +84,11 @@ export const technique = {
     { name: 'Let', text: 'Ruke iznad glave, tijelo ispruženo. Cilj je zadržati položaj laste što je duže moguće.' },
     { name: 'Ulazak', text: 'Ulazak u vodu uz što manje prskanja. Ispod mosta Vrbas je dubok dva do tri metra.' },
   ],
+};
+
+export const historyHead = {
+  eyebrow: 'Od 1936.',
+  title: 'Devet decenija sa mosta',
 };
 
 export const history = [
