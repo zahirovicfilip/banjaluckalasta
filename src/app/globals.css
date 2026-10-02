@@ -1,0 +1,294 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. The palette is the club's own, sampled from its artwork
+ * (brochure 2026, logo PSD): navy #003156, blue #009DE1, deep #001928.
+ * One accent (the blue), cool neutrals, auto light/dark.
+ *
+ * Shape rule: interactive controls (buttons, chips, tabs) are full pills;
+ * surfaces (media, panels, inputs) use --radius. Nothing else.
+ * Z-index scale: hero text 0, hero figure 10, phone menu 40, nav 50, skip link 60.
+ * The navbar is a floating pill in the flat brand blue.
+ */
+:root {
+  --navy: #003156;
+  --blue: #009de1;
+  --deep: #001928;
+
+  --bg: #f4f7fa;
+  --surface: #e7eef4;
+  --ink: #003156;
+  --muted: #4a6480;
+  --line: #cfdbe6;
+  --accent: var(--blue);
+  --accent-ink: #0074ae;
+  --on-accent: var(--deep);
+  /* Navy panels that stay dark in both themes (quote card, stat tile). */
+  --panel: var(--navy);
+  --on-panel: #f4f8fb;
+  /* Hero: the diver matches the official navy logo on paper, and turns blue at night. */
+  --hero-figure: var(--navy);
+  --hero-title: var(--blue);
+
+  --radius: 14px;
+  --gutter: 1rem;
+  color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #03162b;
+    --surface: #0a2540;
+    --ink: #eaf2f8;
+    --muted: #9fb6cb;
+    --line: #163352;
+    --accent-ink: #5cc4f2;
+    --panel: #0a2b4d;
+    --hero-figure: var(--blue);
+    --hero-title: #eaf2f8;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+  --color-panel: var(--panel);
+  --color-on-panel: var(--on-panel);
+  --color-navy: var(--navy);
+  --color-deep: var(--deep);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --radius-panel: var(--radius);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Controls answer the finger at once and never select like text. */
+button,
+a,
+[role='tab'] {
+  touch-action: manipulation;
+}
+button,
+[role='tab'],
+.btn {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@layer components {
+  /* Expanded, heavy display cut of Archivo for headlines and numbers. */
+  .display {
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+  }
+
+  /* Left edge of .shell for full-bleed rails that still line up with the page grid. */
+  .rail {
+    --inset: max(var(--gutter), calc((100% - 1400px) / 2 + var(--gutter)));
+    padding-inline: var(--inset);
+    scroll-padding-inline: var(--inset);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.8rem 1.35rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition:
+      transform 160ms var(--ease-out-expo),
+      background-color 200ms ease,
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-ghost {
+    border: 1px solid color-mix(in oklab, var(--ink) 22%, transparent);
+    color: var(--ink);
+    background: color-mix(in oklab, var(--bg) 70%, transparent);
+    backdrop-filter: blur(8px);
+  }
+  /*
+   * Navbar links: white labels on pills a shade darker than the blue bar. The
+   * light top edge, shaded bottom edge and soft drop shadow lift them off it.
+   */
+  .nav-pill {
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: #fff;
+    background: rgb(0 25 40 / 0.38);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      inset 0 -1px 0 rgb(0 0 0 / 0.22),
+      0 6px 14px -8px rgb(0 25 40 / 0.7);
+    transition:
+      background-color 200ms ease,
+      transform 160ms var(--ease-out-expo);
+  }
+  .nav-pill:active {
+    transform: scale(0.97);
+  }
+  /* For dark photo and video backgrounds, whatever the theme. */
+  .btn-on-dark {
+    border: 1px solid rgb(255 255 255 / 0.35);
+    color: #fff;
+    background: rgb(0 25 40 / 0.35);
+    backdrop-filter: blur(8px);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover {
+      background: color-mix(in oklab, var(--accent) 86%, white);
+    }
+    .btn-ghost:hover {
+      border-color: var(--ink);
+    }
+    .nav-pill:hover {
+      background: rgb(0 25 40 / 0.58);
+    }
+    .btn-on-dark:hover {
+      border-color: #fff;
+    }
+  }
+
+  /* Placeholder photos get a blue duotone so random stock reads as on-brand. */
+  .duotone {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .duotone img {
+    filter: grayscale(1) contrast(1.08) brightness(1.04);
+  }
+  .duotone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--navy);
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Poster hero entrance. Plain CSS, so it starts with the first paint (no wait
+ * for JavaScript) and stays smooth while the page loads. `backwards` holds the
+ * first frame through the delay and then lets go of the element completely.
+ */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+@keyframes hero-dive {
+  from {
+    opacity: 0;
+    transform: translate3d(22%, -28%, 0);
+  }
+}
+@keyframes hero-float {
+  50% {
+    transform: translateY(-1.6%);
+  }
+}
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rise {
+    animation: hero-rise 900ms var(--ease-out-expo) calc(var(--i, 0) * 80ms) backwards;
+  }
+  .hero-card {
+    animation: hero-rise 1000ms var(--ease-out-expo) 160ms backwards;
+  }
+  /* The diver arrives along his own dive line, then hovers. */
+  .hero-dive {
+    animation: hero-dive 1300ms var(--ease-out-expo) 380ms backwards;
+  }
+  .hero-float {
+    animation: hero-float 7s ease-in-out 1.7s infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-rise,
+  .hero-card,
+  .hero-dive {
+    animation: hero-fade 400ms ease-out backwards;
+  }
+}

@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+.env*.local
+
+# Club source material (2+ GB). Web-sized versions are built into src/assets and public/media.
+transfer-*/
+scripts/media/.build/
+
+# The original hero archive; its code lives in src/components/lasta.
+*.zip
+
+# Working notes, kept out of the public repository.
+RESEARCH.md
