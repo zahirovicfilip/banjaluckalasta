@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { FacebookLogoIcon, InstagramLogoIcon, TiktokLogoIcon } from '@phosphor-icons/react';
 import logo from '@/assets/logo.png';
 import { nav, site, socials } from '@/content/site';
@@ -21,7 +21,8 @@ const easeInOut = [0.77, 0, 0.175, 1] as const;
  * Right: the links as darker pills with white labels (.nav-pill) from 768px up,
  * the menu button below that. Name left and buttons right never share space.
  *
- * Below 768px the links live in a full-screen menu. It opens out of
+ * Below 768px the links live in a full-screen menu, and on desktop too once the
+ * visitor is past the camp programme and scrolling on (see `compact`). It opens out of
  * the menu button: a blue circle that grows from the button until it covers
  * the screen, and the links rise in behind it. Closing runs the same circle
  * back into the button, faster.
@@ -31,6 +32,30 @@ export default function Nav() {
   const [origin, setOrigin] = useState({ x: 0, y: 0, r: 0 });
   const button = useRef<HTMLButtonElement>(null);
   const reduce = useReducedMotion();
+
+  // Desktop only: once the camp programme is behind the visitor, the links fold into the
+  // menu button while they scroll on, and come back as soon as they scroll up a little.
+  // (On phones the menu button is always there and nothing changes.)
+  const [compact, setCompact] = useState(false);
+  const last = useRef(0);
+  const climb = useRef(0);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const dy = y - last.current;
+    last.current = y;
+    climb.current = dy < 0 ? climb.current - dy : 0;
+    const program = document.getElementById('program');
+    const past = !!program && program.getBoundingClientRect().bottom < 88;
+    setCompact((was) => {
+      if (!past) return false;
+      if (dy > 0) return true;
+      // A deliberate scroll up, not a trackpad's twitch.
+      if (climb.current > 24) return false;
+      return was;
+    });
+  });
+  const compactRef = useRef(compact);
+  compactRef.current = compact;
 
   function toggle() {
     if (!open && button.current) {
@@ -56,9 +81,11 @@ export default function Nav() {
       button.current?.focus();
     };
     const desktop = window.matchMedia('(min-width: 768px)');
+    // On desktop the menu only exists while the links are folded away.
     const onWide = () => {
-      if (desktop.matches) setOpen(false);
+      if (desktop.matches && !compactRef.current) setOpen(false);
     };
+    onWide();
     window.addEventListener('keydown', onKey);
     desktop.addEventListener('change', onWide);
     return () => {
@@ -66,7 +93,7 @@ export default function Nav() {
       window.removeEventListener('keydown', onKey);
       desktop.removeEventListener('change', onWide);
     };
-  }, [open]);
+  }, [open, compact]);
 
   const closed = `circle(22px at ${origin.x}px ${origin.y}px)`;
   const flooded = `circle(${origin.r}px at ${origin.x}px ${origin.y}px)`;
@@ -82,7 +109,7 @@ export default function Nav() {
         <div className="shell">
           <div className="relative">
             {/* Flat blue, with a hairline of light on top and shade below so it reads as a solid bar. */}
-            <div className="pointer-events-auto relative rounded-[1.875rem] bg-accent text-on-accent shadow-[0_18px_38px_-18px_rgb(0_25_40/0.75),inset_0_1px_0_rgb(255_255_255/0.35),inset_0_-1px_0_rgb(0_25_40/0.25)]">
+            <div data-navbar className="pointer-events-auto relative rounded-[1.875rem] bg-accent text-on-accent shadow-[0_18px_38px_-18px_rgb(0_25_40/0.75),inset_0_1px_0_rgb(255_255_255/0.35),inset_0_-1px_0_rgb(0_25_40/0.25)]">
 
               {/* The left padding is the room the crest takes up. Below 360px the crest, the name and
                   the gap all tighten a little, so the menu button stays inside the bar. */}
@@ -91,44 +118,72 @@ export default function Nav() {
                   href="#top"
                   onClick={() => setOpen(false)}
                   aria-label={`${site.name}, na vrh stranice`}
-                  className="display text-[0.95rem] leading-[0.9] max-[359px]:text-[0.85rem] lg:text-[1.05rem]"
+                  data-wordmark
+                  // While the camp badge sits in the bar (CampStage), it takes this name's place. The
+                  // name steps aside quickly; coming back it fades in where it stands, slightly after
+                  // the badge starts to leave, so the two overlap into one crossfade, not a swap.
+                  className="display text-[0.95rem] leading-[0.9] transition-[opacity,filter] delay-[150ms] duration-[600ms] ease-[cubic-bezier(0.77,0,0.175,1)] max-[359px]:text-[0.85rem] lg:text-[1.05rem] [html[data-camp-badge]_&]:opacity-0 [html[data-camp-badge]_&]:blur-[2px] [html[data-camp-badge]_&]:delay-0 [html[data-camp-badge]_&]:duration-200"
                 >
                   <span className="block text-white">{first}</span>
                   <span className="block text-deep">{rest.join(' ')}</span>
                 </a>
 
-                <nav aria-label="Glavna navigacija" className="hidden items-center gap-1.5 md:flex">
-                  {nav.map((item) => (
-                    <a key={item.href} href={item.href} className="nav-pill max-lg:px-3">
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-
-                <div className="flex items-center md:hidden">
-                  <button
-                    ref={button}
-                    type="button"
-                    onClick={toggle}
-                    aria-expanded={open}
-                    aria-controls="mobile-menu"
-                    aria-label={open ? 'Zatvori meni' : 'Otvori meni'}
-                    className="nav-pill grid size-11 place-items-center p-0"
+                {/*
+                  The links and the menu button share one spot on the right. From 768px the links
+                  show and the button hides, until `compact`: then the links fold away into the
+                  button, the one nearest it first, and the button comes up in their place.
+                  CSS transitions, so a quick change of mind reverses smoothly from wherever it is.
+                */}
+                <div className="grid items-center justify-items-end">
+                  <nav
+                    aria-label="Glavna navigacija"
+                    aria-hidden={compact || undefined}
+                    inert={compact}
+                    className="col-start-1 row-start-1 hidden items-center gap-1.5 md:flex"
                   >
-                    {/* Two bars that cross into an X. */}
-                    <span aria-hidden className="relative block h-3 w-5">
-                      <span
-                        className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          open ? 'translate-y-[5px] rotate-45' : ''
+                    {nav.map((item, i) => (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        style={{ transitionDelay: `${(nav.length - 1 - i) * 35}ms` }}
+                        className={`nav-pill transition-[opacity,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transform-none max-lg:px-3 ${
+                          compact ? 'pointer-events-none translate-x-4 scale-90 opacity-0' : ''
                         }`}
-                      />
-                      <span
-                        className={`absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          open ? '-translate-y-[5px] -rotate-45' : ''
-                        }`}
-                      />
-                    </span>
-                  </button>
+                      >
+                        {item.label}
+                      </a>
+                    ))}
+                  </nav>
+
+                  <div
+                    className={`col-start-1 row-start-1 flex items-center transition-[opacity,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transform-none ${
+                      compact ? 'md:delay-100' : 'md:pointer-events-none md:scale-90 md:opacity-0'
+                    }`}
+                  >
+                    <button
+                      ref={button}
+                      type="button"
+                      onClick={toggle}
+                      aria-expanded={open}
+                      aria-controls="mobile-menu"
+                      aria-label={open ? 'Zatvori meni' : 'Otvori meni'}
+                      className={`nav-pill grid size-11 place-items-center p-0 ${compact ? '' : 'md:invisible'}`}
+                    >
+                      {/* Two bars that cross into an X. */}
+                      <span aria-hidden className="relative block h-3 w-5">
+                        <span
+                          className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-white transition-transform duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none ${
+                            open ? 'translate-y-[5px] rotate-45' : ''
+                          }`}
+                        />
+                        <span
+                          className={`absolute bottom-0 left-0 h-0.5 w-5 rounded-full bg-white transition-transform duration-300 ease-[var(--ease-out-expo)] motion-reduce:transition-none ${
+                            open ? '-translate-y-[5px] -rotate-45' : ''
+                          }`}
+                        />
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,7 +194,7 @@ export default function Nav() {
               onClick={() => setOpen(false)}
               aria-hidden
               tabIndex={-1}
-              className="pointer-events-auto absolute left-[2.75rem] top-[3.75rem] z-10 block -translate-y-1/2 rounded-full max-[359px]:left-[1.75rem] shadow-[0_10px_22px_-8px_rgb(0_25_40/0.6)] ring-[3px] ring-white transition-[scale] duration-200 ease-out hover:scale-105 active:scale-95 lg:left-[3.5rem]"
+              className="pointer-events-auto absolute left-[2.75rem] top-[3.75rem] z-10 block -translate-y-1/2 rounded-full max-[359px]:left-[1.75rem] shadow-[0_10px_22px_-8px_rgb(0_25_40/0.6)] ring-[3px] ring-white transition-[scale] duration-150 ease-[var(--ease-out-expo)] hover:scale-105 active:scale-95 lg:left-[3.5rem]"
             >
               <Image src={logo} alt="" width={80} height={80} priority className="size-16 lg:size-20" />
             </a>
@@ -154,12 +209,12 @@ export default function Nav() {
             aria-label="Mobilna navigacija"
             initial={reduce ? { opacity: 0 } : { clipPath: closed }}
             animate={reduce ? { opacity: 1 } : { clipPath: flooded }}
-            exit={reduce ? { opacity: 0 } : { clipPath: closed, transition: { duration: 0.5, ease: easeInOut } }}
-            transition={reduce ? { duration: 0.2 } : { duration: 0.75, ease: easeInOut }}
-            className="fixed inset-0 z-40 flex flex-col bg-accent text-on-accent md:hidden"
+            exit={reduce ? { opacity: 0 } : { clipPath: closed, transition: { duration: 0.3, ease: easeInOut } }}
+            transition={reduce ? { duration: 0.2 } : { duration: 0.45, ease: easeInOut }}
+            className={`fixed inset-0 z-40 flex flex-col bg-accent text-on-accent ${compact ? '' : 'md:hidden'}`}
           >
             <motion.div
-              variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: reduce ? 0 : 0.32 } } }}
+              variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: reduce ? 0 : 0.18 } } }}
               initial="hidden"
               animate="show"
               className="shell relative flex flex-1 flex-col overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] pt-[calc(env(safe-area-inset-top,0px)+8.75rem)]"

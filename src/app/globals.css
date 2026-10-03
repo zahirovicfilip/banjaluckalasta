@@ -59,6 +59,20 @@
   }
 }
 
+/*
+ * Dark tokens for content that sits on a dark photo or video whatever the
+ * theme (the camp programme over the drone footage).
+ */
+.scheme-dark {
+  --ink: #eaf2f8;
+  --muted: rgb(234 242 248 / 0.74);
+  --line: rgb(255 255 255 / 0.16);
+  --surface: rgb(255 255 255 / 0.08);
+  --accent-ink: #5cc4f2;
+  color: var(--ink);
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -361,7 +375,21 @@ button,
   }
 }
 
+/* Skok laste (the hidden game): the result title pops in. */
+@keyframes skok-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(6px);
+  }
+}
+.skok-pop {
+  animation: skok-pop 220ms var(--ease-out-expo) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .skok-pop {
+    animation: hero-fade 150ms ease-out both;
+  }
   html {
     scroll-behavior: auto;
   }

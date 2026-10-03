@@ -1,8 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react';
 import { ArrowRightIcon } from '@phosphor-icons/react';
+import SkokTrigger from '@/components/skok/SkokTrigger';
 import igor from '@/assets/igor.png';
 import texture from '@/assets/texture-tall.jpg';
 import { cta, hero, quote } from '@/content/site';
@@ -25,6 +27,8 @@ const spring = { stiffness: 150, damping: 20, mass: 0.5 };
  */
 export default function HeroPoster() {
   const reduce = useReducedMotion();
+  // True while a finger is pressing the diver (the hidden game opens after a short hold).
+  const [holding, setHolding] = useState(false);
   const px = useMotionValue(0);
   const py = useMotionValue(0);
   const sx = useSpring(px, spring);
@@ -156,14 +160,17 @@ export default function HeroPoster() {
             <div className="pointer-events-none absolute left-[-24%] top-[-4cqi] w-[120%] sm:left-[-30%] sm:top-[-5cqi] sm:w-[135%]">
               <div className="hero-dive">
                 <motion.div style={{ transform: figure }} className="will-change-transform">
-                  <div className="hero-float">
+                  <div className="hero-float relative">
                     <Image
                       src={igor}
                       alt={quote.photoAlt}
                       priority
                       sizes="(min-width: 640px) 45vw, 56vw"
-                      className="h-auto w-full drop-shadow-[0_26px_30px_rgb(0_25_40/0.45)]"
+                      className={`h-auto w-full drop-shadow-[0_26px_30px_rgb(0_25_40/0.45)] transition-transform ease-[var(--ease-out-expo)] ${
+                        holding ? 'scale-[1.05] duration-500' : 'duration-200'
+                      }`}
                     />
+                    <SkokTrigger onHold={setHolding} />
                   </div>
                 </motion.div>
               </div>

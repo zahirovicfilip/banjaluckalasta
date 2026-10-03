@@ -68,6 +68,12 @@ if [ "$WHAT" = all ] || [ "$WHAT" = videos ]; then
   $BIN frames "$V/kamp-wide.mp4" "$TMP/kw" 1600 "0.0" >/dev/null && cp "$TMP/kw_00.jpg" "$V/kamp-wide.jpg"
   $BIN frames "$V/kamp-tall.mp4" "$TMP/kt" 720 "0.0" >/dev/null && cp "$TMP/kt_00.jpg" "$V/kamp-tall.jpg"
 
+  echo "== Camp programme background: the drone orbit past the jump tower, 1.5x speed"
+  $BIN export "$SRC/Dron/DJI_0786.MP4" "$V/tower-wide.mp4" 0.5 26 1600 2600 crop=0,0.32,1,0.31640625 speed=1.5
+  $BIN export "$SRC/Dron/DJI_0786.MP4" "$V/tower-tall.mp4" 0.5 26 720 1800 speed=1.5
+  $BIN frames "$V/tower-wide.mp4" "$TMP/tw" 1600 "0.0" >/dev/null && cp "$TMP/tw_00.jpg" "$V/tower-wide.jpg"
+  $BIN frames "$V/tower-tall.mp4" "$TMP/tt" 720 "0.0" >/dev/null && cp "$TMP/tt_00.jpg" "$V/tower-tall.jpg"
+
   echo "== Reel: jump clips from the camp finale"
   # name | source clip | start | duration | poster time (seconds in the source, mid-flight)
   REEL=(

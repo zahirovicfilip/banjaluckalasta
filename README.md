@@ -21,7 +21,7 @@ npm run media      # rebuild web images and videos from the transfer folder (mac
 | `src/components/sections/` | One file per section |
 | `src/components/ui/` | `Reveal` (scroll fade-in), `BgVideo` (lazy background video), `Drift` (scroll drift), `YouTube` (video facade), `LastaMark` (diver silhouette) |
 | `src/assets/` | Web-sized images built from the club's material: logo, camp badge, cutout, textures, jerseys, camp photos |
-| `public/media/` | Web-sized videos and posters: drone fly-in (`kamp-*`), jump clips (`skok-NN`) |
+| `public/media/` | Web-sized videos and posters: drone fly-in (`kamp-*`), drone orbit past the tower (`tower-*`), jump clips (`skok-NN`) |
 | `src/app/icon.png`, `apple-icon.png`, `opengraph-image.jpg` | Favicon and share image, built from the official logo |
 | `src/app/api/prijava/route.ts` | Join-form endpoint. Validates and logs for now. |
 | `scripts/build-media.sh`, `scripts/media/` | The asset pipeline (see below) |
@@ -46,8 +46,10 @@ In the animated hero the diver is navy on light and blue on dark. That is one to
    - The scroll-driven dive is still in the code (`HeroDive.tsx`), hidden. Set `hero.animated` to `true` in `site.ts` to bring it back; the quote poster then returns to its own section after the results.
 2. **Istorija** (`#istorija`): one screen with a circular carousel of tall rounded cards, one per year. Five are on screen: the middle one at full size with the torn-paper pattern, one smaller card on each side, and one more on each side cut in half by the screen edge. It has no end: after 2026 comes 1936 again. It moves with a finger or mouse drag, a sideways trackpad scroll, the arrow keys, two buttons (from 768px) or a click on a side card, and settles on the nearest card. Below 768px the cards are too narrow for text, so they show the year upright and the title and story of the middle card sit under the carousel. The sizes live in `.era-rail` in `globals.css` and in `SHRINK` in `History.tsx`.
 3. **Kamp** (`#kamp`): the camp chapter.
+   - Opener and programme share one stage (`CampStage.tsx`): the background holds still while the text scrolls over it, and the drone fly-in dissolves into a second drone shot (the orbit past the jump tower, `tower-*.mp4`) as the programme comes up. No sheet or pinned page here; it is one continuous move.
+   - The camp badge flies from the opener up into the navbar, takes the place of the name "Banjalučka lasta" through the programme, and hands it back when the finale comes up.
    - Opener: drone fly-in over Jezero Manjača behind the headline, camp badge, three facts. The "Kamp" link lands with the video filling the screen.
-   - Programme (`#program`): one tab per day with a photo and that day's timetable, then the coaches.
+   - Programme (`#program`): one tab per day with a photo and that day's timetable, then the coaches, light on dark over the video.
    - Finale (`#finale`): a rail of 12 jump clips from the final competition. Only clips on screen load and play.
    - Camp jersey and the club's community work.
 4. **Numbers**: 1936, 7 titles, 2021, 75 at camp, plus a wide shot of Gradski most. (73 years and 12 m are in the hero.)
@@ -68,6 +70,15 @@ The first three screens behave like a stack of pages (`PageStack.tsx`). The hero
 - A page taller than the screen (a short laptop window, a phone on its side) scrolls first and holds at its bottom edge, so nothing on it is cut off.
 - The anchors `#top` and `#istorija` are empty elements in front of the pages, because a held page would not scroll when linked to.
 - With reduced motion switched on in the system, nothing is held or scaled and the page scrolls like a normal document.
+
+## Hidden game: Skok laste (`/skok`)
+
+A one-button timing game, not linked anywhere. It opens from the diver in the hero: click him on a computer, or press and hold him for about half a second on a phone (a normal tap or scroll does nothing). The trigger is `src/components/skok/SkokTrigger.tsx`.
+
+- `src/components/skok/config.ts`: every number that sets the difficulty (gravity, slow-motion factor, start height, height per level, timing window and how fast it shrinks, the time the arms need to close, points, camera zoom, colours).
+- `src/components/skok/Game.tsx`: the game loop (fixed 120 Hz step, canvas), input, screens.
+- `src/components/skok/diver.ts`: the diver is the man from the logo, posed through the same skinned rig the original hero animation uses (`src/components/lasta/lasta-data.json`): his stance, crouch and launch come from that animation, the swallow is the exact logo pose, and the entry, tumble, slap and float poses are the logo pose with some joints turned further.
+- The best result is kept in the visitor's own browser (localStorage). Nothing is sent anywhere; there is no leaderboard.
 
 ## Media pipeline
 

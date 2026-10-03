@@ -283,7 +283,9 @@ function Era({ item, index, position, current, entrance, slot, onPick }: EraProp
       data-era
       style={{ transform, opacity }}
       aria-current={current ? 'true' : undefined}
-      className="@container absolute left-1/2 top-0 ml-[calc(var(--card-w)/-2)] w-[var(--card-w)] will-change-transform"
+      // Its own layer with its back hidden: browsers then move and scale the card as one finished
+      // picture instead of redrawing the text at every new size, which makes letters shimmer.
+      className="@container absolute left-1/2 top-0 ml-[calc(var(--card-w)/-2)] w-[var(--card-w)] will-change-transform [backface-visibility:hidden]"
     >
       {/* The entrance slides this inner layer; the list item above is busy holding its place. */}
       <motion.div variants={entrance} custom={slot}>

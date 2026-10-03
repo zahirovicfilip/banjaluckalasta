@@ -1,13 +1,10 @@
 import Image from 'next/image';
-import BgVideo from '@/components/ui/BgVideo';
 import Reveal from '@/components/ui/Reveal';
-import CampProgram from '@/components/sections/CampProgram';
+import CampStage from '@/components/sections/CampStage';
 import Reel from '@/components/sections/Reel';
-import badge from '@/assets/kamp-badge.png';
 import jerseyPink from '@/assets/jersey-pink.png';
 import jerseyWhite from '@/assets/jersey-white.png';
-import seal from '@/assets/seal.png';
-import { actions, camp, cta, jersey } from '@/content/site';
+import { actions, jersey } from '@/content/site';
 import { ytImage } from '@/lib/youtube';
 
 /**
@@ -18,47 +15,9 @@ import { ytImage } from '@/lib/youtube';
 export default function Camp() {
   return (
     <>
-      {/*
-        The third page of the stack (see PageStack): it slides over the history page as a sheet
-        with a rounded top edge, and the drone shot eases out of a slight zoom as it arrives.
-        The negative scroll margin cancels the page's 88px anchor offset and adds the corner
-        radius, so the "Kamp" link lands with the video filling the screen and the rounded
-        corners just above it. The section is that much taller to make up for it.
-      */}
-      <section
-        id="kamp"
-        className="relative isolate flex min-h-[calc(92svh+2.25rem)] -scroll-mt-[calc(88px+2.25rem)] flex-col justify-end overflow-hidden rounded-t-[2.25rem] bg-deep text-white sm:min-h-[calc(92svh+3rem)] sm:-scroll-mt-[calc(88px+3rem)] sm:rounded-t-[3rem]"
-      >
-        <BgVideo {...camp.video} settle className="absolute inset-0 -z-20" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-deep via-deep/50 to-deep/10" />
-
-        <div className="shell pb-14 pt-44 md:pb-20">
-          <Reveal>
-            <div className="flex items-center gap-5">
-              {camp.showSeal && <Image src={seal} alt={camp.sealAlt} className="size-14 md:size-16" />}
-              <Image src={badge} alt={camp.badgeAlt} className="h-auto w-40 md:w-52" />
-            </div>
-            <h2 className="display mt-8 max-w-[13ch] text-[clamp(2.75rem,7.5vw,7rem)]">{camp.title}</h2>
-            <p className="mt-6 max-w-[50ch] text-lg leading-relaxed text-white/85">{camp.text}</p>
-          </Reveal>
-
-          <div className="mt-10 flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
-            <ul className="flex flex-wrap gap-x-12 gap-y-6">
-              {camp.facts.map((f, i) => (
-                <Reveal as="li" key={f.label} delay={0.06 * i}>
-                  <span className="display block text-4xl md:text-5xl">{f.value}</span>
-                  <span className="mt-2 block text-sm text-white/75">{f.label}</span>
-                </Reveal>
-              ))}
-            </ul>
-            <a href={cta.join.href} className="btn btn-primary self-start md:self-auto">
-              {cta.join.label}
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <CampProgram />
+      {/* The third page of the stack (see PageStack): the opener slides over the history page as
+          a sheet, then flows into the programme on one stage (CampStage). */}
+      <CampStage />
       <Reel />
 
       <section aria-label="Dres kampa i akcije" className="shell grid gap-16 border-t border-line py-24 md:py-32 lg:grid-cols-12 lg:gap-12">

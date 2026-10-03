@@ -203,6 +203,13 @@ export const camp = {
     posterWide: '/media/kamp-wide.jpg',
     posterTall: '/media/kamp-tall.jpg',
   },
+  // Drone orbit past the jump tower, behind the programme.
+  tower: {
+    wide: '/media/tower-wide.mp4',
+    tall: '/media/tower-tall.mp4',
+    posterWide: '/media/tower-wide.jpg',
+    posterTall: '/media/tower-tall.jpg',
+  },
 };
 
 type ProgramItem = { time: string; label: string; key?: boolean };
