@@ -16,7 +16,7 @@ npm run media      # rebuild web images and videos from the transfer folder (mac
 | `src/content/site.ts` | **All copy and data.** Text, results, people, camp programme, clip list, links. |
 | `src/app/page.tsx` | Section order |
 | `src/app/globals.css` | Design tokens (brand colors, radius, display type), light/dark |
-| `src/components/PageStack.tsx` | The stacked pages at the top of the site: hero, history, then the camp sliding over them |
+| `src/components/PageStack.tsx` | The stacked pages at the top of the site: hero, winners, then the camp sliding over them |
 | `src/components/lasta/` | The original hero engine (untouched), from `lasta-hero-nextjs.zip` |
 | `src/components/sections/` | One file per section |
 | `src/components/ui/` | `Reveal` (scroll fade-in), `BgVideo` (lazy background video), `Drift` (scroll drift), `YouTube` (video facade), `LastaMark` (diver silhouette) |
@@ -44,7 +44,7 @@ In the animated hero the diver is navy on light and blue on dark. That is one to
 
 1. **Hero** (poster): two headline numbers next to each other (73 years, 12 m) on the left, the brochure-style poster as a tall card on the right, at every width. Igor's cutout is wider than the card, so he leaves the frame. The card tilts toward the mouse, he slides the other way. From 640px the explanation and the buttons sit under the numbers. On phones the numbers sit at the foot of the poster, below the diver's head, with short labels (`short` in `hero.stats`), and the explanation and buttons run full width underneath. The quote always starts below the diver: on a small card the card grows taller instead of the words ending up under him. The name is in the navbar; the page title here is for screen readers and search engines only.
    - The scroll-driven dive is still in the code (`HeroDive.tsx`), hidden. Set `hero.animated` to `true` in `site.ts` to bring it back; the quote poster then returns to its own section after the results.
-2. **Istorija** (`#istorija`): one screen with a circular carousel of tall rounded cards, one per year. Five are on screen: the middle one at full size with the torn-paper pattern, one smaller card on each side, and one more on each side cut in half by the screen edge. It has no end: after 2026 comes 1936 again. It moves with a finger or mouse drag, a sideways trackpad scroll, the arrow keys, two buttons (from 768px) or a click on a side card, and settles on the nearest card. Below 768px the cards are too narrow for text, so they show the year upright and the title and story of the middle card sit under the carousel. The sizes live in `.era-rail` in `globals.css` and in `SHRINK` in `History.tsx`.
+2. **Pobjednici skokova** (`#pobjednici`): every winner from the board "Pobjednici skokova sa Gradskog mosta od 1979." plus 2025 and 2026, as a circular carousel of tall rounded cards, one per year. Each card has the year, the winner and one line on what Banja Luka lived through that year (`winners` in `site.ts`, each line checked against press or encyclopedia sources in October 2026). Five are on screen: the middle one at full size with the torn-paper pattern, one smaller card on each side, and one more on each side cut in half by the screen edge. It has no end: after 2026 comes 1979 again. It moves with a finger or mouse drag, a sideways trackpad scroll, the arrow keys, two buttons (from 768px) or a click on a side card, and settles on the nearest card. Below 768px the cards are too narrow for text, so they show the year upright and the winner and the city's line for the middle card sit under the carousel. The sizes live in `.era-rail` in `globals.css` and in `SHRINK` in `Winners.tsx`.
 3. **Kamp** (`#kamp`): the camp chapter.
    - Opener and programme share one stage (`CampStage.tsx`): the background holds still while the text scrolls over it, and the drone fly-in dissolves into a second drone shot (the orbit past the jump tower, `tower-*.mp4`) as the programme comes up. No sheet or pinned page here; it is one continuous move.
    - The camp badge flies from the opener up into the navbar, takes the place of the name "Banjalučka lasta" through the programme, and hands it back when the finale comes up.
@@ -64,11 +64,11 @@ The navbar and footer links follow the same order (`nav` in `site.ts`): Istorija
 
 ### Page transitions
 
-The first three screens behave like a stack of pages (`PageStack.tsx`). The hero holds still while the history page slides up over it as a sheet with a rounded top edge, and shrinks back and fades as it is covered. The history page is then covered the same way by the camp opener, whose drone shot eases out of a slight zoom as it arrives.
+The first three screens behave like a stack of pages (`PageStack.tsx`). The hero holds still while the winners page slides up over it as a sheet with a rounded top edge, and shrinks back and fades as it is covered. The winners page is then covered the same way by the camp opener, whose drone shot eases out of a slight zoom as it arrives.
 
 - Holding still is CSS (`position: sticky`, `.stack-page` in `globals.css`). Only the shrink and fade follow the scroll position from JavaScript.
 - A page taller than the screen (a short laptop window, a phone on its side) scrolls first and holds at its bottom edge, so nothing on it is cut off.
-- The anchors `#top` and `#istorija` are empty elements in front of the pages, because a held page would not scroll when linked to.
+- The anchors `#top` and `#pobjednici` are empty elements in front of the pages, because a held page would not scroll when linked to.
 - With reduced motion switched on in the system, nothing is held or scaled and the page scrolls like a normal document.
 
 ## Hidden game: Skok laste (`/skok`)

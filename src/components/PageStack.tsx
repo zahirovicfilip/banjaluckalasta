@@ -23,7 +23,7 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
  * stays smooth on phones. Only the shrink and fade follow the scroll position
  * from JavaScript.
  *
- * The anchors (#top, #istorija) are empty elements in front of the pages, not
+ * The anchors (#top, #pobjednici) are empty elements in front of the pages, not
  * the pages themselves: a pinned page reports its pinned position, so a link
  * to it from further down would not scroll anywhere.
  *

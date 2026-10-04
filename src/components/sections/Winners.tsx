@@ -17,9 +17,9 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon } from '@phosphor-icons/react';
 import Reveal from '@/components/ui/Reveal';
 import pattern from '@/assets/pattern.png';
-import { history, historyHead } from '@/content/site';
+import { winners, winnersHead } from '@/content/site';
 
-const total = history.length;
+const total = winners.length;
 const easeOut = [0.16, 1, 0.3, 1] as const;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -48,10 +48,12 @@ const pull = (a: number) => {
 const REACH = 3.2;
 
 /**
- * The history page: a circular carousel of tall rounded cards, one per year.
+ * The winners page: every winner of the jumps from Gradski most since 1979, as
+ * a circular carousel of tall rounded cards, one per year. Each card carries
+ * the year, the winner and one thing Banja Luka lived through that year.
  * Five are on screen: the middle one at full size, one on each side a little
  * smaller, and one more on each side, smaller again and cut in half by the
- * edge of the screen. It has no first or last card: after 2026 comes 1936.
+ * edge of the screen. It has no first or last card: after 2026 comes 1979.
  *
  * The cards are not in a scrolling box. One number, `position`, says which
  * card is in the middle (2.5 is halfway between the third and fourth), and
@@ -64,12 +66,12 @@ const REACH = 3.2;
  * the nearest card with a spring. Vertical swipes still scroll the page.
  *
  * Below 768px the cards are too narrow for text, so they show only the year,
- * set upright along the card, and the title and story of the middle card sit
- * underneath the carousel.
+ * set upright along the card, and the winner and the city's year for the
+ * middle card sit underneath the carousel.
  *
  * Under reduced motion the carousel jumps from card to card instead of gliding.
  */
-export default function History() {
+export default function Winners() {
   const rail = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
@@ -172,20 +174,20 @@ export default function History() {
 
   return (
     <section
-      aria-labelledby="istorija-naslov"
+      aria-labelledby="pobjednici-naslov"
       className="era-rail flex min-h-[100svh] flex-col pb-7 pt-[calc(env(safe-area-inset-top,0px)+7.75rem)] sm:pb-10 sm:pt-32"
     >
       <div className="shell flex items-end justify-between gap-8">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">{historyHead.eyebrow}</p>
-          {/* On phones the size is worked out from the screen width so that "Devet decenija"
-              exactly fills the first line (it is 11 em wide in this typeface). From 1024px the
-              title runs on one line, which leaves the cards more height. */}
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">{winnersHead.eyebrow}</p>
+          {/* On phones the title is two lines, sized from the screen width so that "Pobjednici"
+              exactly fills the first (it is 7.75 em wide in this typeface). From 1024px it runs
+              on one line, which leaves the cards more height. */}
           <h2
-            id="istorija-naslov"
-            className="display mt-3 max-w-[16ch] text-[min(2.6rem,calc((100vw-2rem)/11.2))] sm:text-[clamp(2.25rem,5.5vw,4rem)] lg:max-w-none lg:text-[clamp(2.5rem,3.6vw,3.5rem)]"
+            id="pobjednici-naslov"
+            className="display mt-3 max-w-[11ch] text-[min(3.25rem,calc((100vw-2rem)/7.9))] sm:text-[clamp(2.25rem,5.5vw,4rem)] lg:max-w-none lg:text-[clamp(2.5rem,3.6vw,3.5rem)]"
           >
-            {historyHead.title}
+            {winnersHead.title}
           </h2>
         </Reveal>
 
@@ -206,7 +208,7 @@ export default function History() {
           ref={rail}
           role="group"
           aria-roledescription="karusel"
-          aria-label="Istorija po godinama"
+          aria-label="Pobjednici po godinama"
           tabIndex={0}
           onKeyDown={onKeyDown}
           onPanStart={onPanStart}
@@ -218,7 +220,7 @@ export default function History() {
           className="w-full touch-pan-y select-none overflow-x-clip pb-11 pt-3 [column-gap:var(--gap)] pointer-fine:cursor-grab pointer-fine:active:cursor-grabbing"
         >
           <ul className="relative h-[var(--card-h)]">
-            {history.map((item, i) => (
+            {winners.map((item, i) => (
               <Era
                 key={item.year}
                 item={item}
@@ -234,11 +236,11 @@ export default function History() {
         </motion.div>
       </div>
 
-      {/* Phones and small tablets: the story of the middle card. All eight are stacked in one
-          spot and each fades in as its card reaches the middle, so the block never changes
-          height. Screen readers get the same text from the cards themselves. */}
+      {/* Phones and small tablets: the winner and the city's year for the middle card. All of
+          them are stacked in one spot and each fades in as its card reaches the middle, so the
+          block never changes height. Screen readers get the same text from the cards themselves. */}
       <div aria-hidden className="shell grid md:hidden">
-        {history.map((item, i) => (
+        {winners.map((item, i) => (
           <Caption key={item.year} item={item} index={i} position={position} />
         ))}
       </div>
@@ -246,7 +248,7 @@ export default function History() {
   );
 }
 
-type Item = (typeof history)[number];
+type Item = (typeof winners)[number];
 
 type EraProps = {
   item: Item;
@@ -274,14 +276,13 @@ function Era({ item, index, position, current, entrance, slot, onPick }: EraProp
   });
   // 1 for the card in the middle, 0 from one card away: its shadow and its pattern.
   const lift = useTransform(distance, (d) => clamp(1 - Math.abs(d), 0, 1));
-
-  // "1970-e" is set as a big 1970 with a small raised -e, like the "m" in the hero's "12 m".
-  const [year, suffix] = item.year.split(/(?=-)/);
+  // The cards waiting off screen are not drawn at all; with forty of them that matters on phones.
+  const visibility = useTransform(distance, (d) => (Math.abs(d) < REACH ? 'visible' : 'hidden'));
 
   return (
     <motion.li
       data-era
-      style={{ transform, opacity }}
+      style={{ transform, opacity, visibility }}
       aria-current={current ? 'true' : undefined}
       // Its own layer with its back hidden: browsers then move and scale the card as one finished
       // picture instead of redrawing the text at every new size, which makes letters shimmer.
@@ -316,13 +317,15 @@ function Era({ item, index, position, current, entrance, slot, onPick }: EraProp
             {/* cqw, not cqi: in upright text the "inline" direction is vertical, and the card is
                 only a container for its width. 3.7 em is the length of the longest year. */}
             <span className="max-md:rotate-180 max-md:text-[min(50cqw,calc((var(--card-h)-22cqw)/3.7))] max-md:leading-none max-md:[writing-mode:vertical-rl]">
-              {year}
-              {suffix && <span className="align-top text-[0.4em]">{suffix}</span>}
+              {item.year}
             </span>
           </p>
           <div className="max-md:sr-only">
-            <h3 className="text-[clamp(1.05rem,7.6cqi,1.6rem)] font-semibold leading-tight">{item.title}</h3>
-            <p className="mt-[3.5cqi] text-[clamp(0.8125rem,5.5cqi,1.125rem)] leading-snug text-on-panel/75">{item.text}</p>
+            <h3 className="text-[clamp(1.05rem,7.6cqi,1.6rem)] font-semibold leading-tight">{item.name}</h3>
+            <p className="mt-[5cqi] text-[clamp(0.625rem,3.4cqi,0.75rem)] font-semibold uppercase tracking-[0.14em] text-on-panel/55">
+              {winnersHead.cityLabel}
+            </p>
+            <p className="mt-[1.5cqi] text-[clamp(0.8125rem,5cqi,1.0625rem)] leading-snug text-on-panel/75">{item.city}</p>
           </div>
         </article>
       </motion.div>
@@ -335,8 +338,9 @@ function Caption({ item, index, position }: { item: Item; index: number; positio
   const opacity = useTransform(position, (p) => clamp(1 - 2.5 * Math.abs(around(index - p)), 0, 1));
   return (
     <motion.div style={{ opacity }} className="col-start-1 row-start-1 mx-auto max-w-[38ch] text-center">
-      <p className="text-lg font-semibold leading-tight">{item.title}</p>
-      <p className="mt-2 text-[0.95rem] leading-normal text-muted">{item.text}</p>
+      <p className="text-lg font-semibold leading-tight">{item.name}</p>
+      <p className="mt-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted">{winnersHead.cityLabel}</p>
+      <p className="mt-1 text-[0.95rem] leading-normal text-muted">{item.city}</p>
     </motion.div>
   );
 }

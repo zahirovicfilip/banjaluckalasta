@@ -3,7 +3,7 @@ import PageStack from '@/components/PageStack';
 import Hero from '@/components/sections/Hero';
 import Stats from '@/components/sections/Stats';
 import Technique from '@/components/sections/Technique';
-import History from '@/components/sections/History';
+import Winners from '@/components/sections/Winners';
 import People from '@/components/sections/People';
 import Results from '@/components/sections/Results';
 import Quote from '@/components/sections/Quote';
@@ -18,12 +18,12 @@ export default function Home() {
     <>
       <Nav />
       <main id="main">
-        {/* The hero and the history page hold still while the next page slides over them.
-            The camp opener is the sheet that covers the history page. */}
+        {/* The hero and the winners page hold still while the next page slides over them.
+            The camp opener is the sheet that covers the winners page. */}
         <PageStack
           pages={[
             { id: 'top', node: <Hero /> },
-            { id: 'istorija', node: <History /> },
+            { id: 'pobjednici', node: <Winners /> },
           ]}
         >
           <Camp />

@@ -7,7 +7,7 @@
  *
  * Shape rule: interactive controls (buttons, chips, tabs) are full pills;
  * surfaces (media, panels, inputs) use --radius. Two exceptions, both large
- * shapes: the history cards (.squircle) and the rounded top edge of a page
+ * shapes: the winners cards (.squircle) and the rounded top edge of a page
  * that slides over the one before it.
  * Z-index scale: stacked pages 0, 10 and 20 (see PageStack), phone menu 40,
  * nav 50, skip link 60.
@@ -270,11 +270,11 @@ button,
 }
 
 /*
- * History carousel (History.tsx): five cards across the screen. The middle one
+ * Winners carousel (Winners.tsx): five cards across the screen. The middle one
  * is full size, the two beside it are 82% and fully visible, and the two after
  * those are 66% with their centre exactly on the screen edge, so the edge cuts
  * them in half. 3.3 is what those sizes add up to in card widths (see `pull`
- * in History.tsx); if the sizes change there, this number has to follow.
+ * in Winners.tsx); if the sizes change there, this number has to follow.
  *
  * The height comes from the screen height so the whole page fits one screen,
  * within limits that keep the cards upright: tall narrow tiles on phones, less
@@ -305,7 +305,7 @@ button,
 }
 
 /*
- * History cards: one large continuous corner, sized from the card's own width
+ * Winners cards: one large continuous corner, sized from the card's own width
  * (cqi), since the cards go from about 100px wide on a phone to over 400px.
  * Browsers that know corner-shape draw a true squircle (it needs a bigger
  * radius to look the same size); the rest get a plain round corner.

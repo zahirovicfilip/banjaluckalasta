@@ -25,7 +25,7 @@ export const socials = [
 
 // Same order as the sections on the page.
 export const nav = [
-  { label: 'Istorija', href: '#istorija' },
+  { label: 'Pobjednici', href: '#pobjednici' },
   { label: 'Kamp', href: '#kamp' },
   { label: 'Lasta', href: '#lasta' },
   { label: 'Skakači', href: '#skakaci' },
@@ -86,20 +86,62 @@ export const technique = {
   ],
 };
 
-export const historyHead = {
-  eyebrow: 'Od 1936.',
-  title: 'Devet decenija sa mosta',
+export const winnersHead = {
+  eyebrow: 'Sa Gradskog mosta od 1979.',
+  title: 'Pobjednici skokova',
+  /** Small label over each year's line about the city. */
+  cityLabel: 'Te godine u Banjaluci',
 };
 
-export const history = [
-  { year: '1936', title: 'Most i prvi skokovi', text: 'Završen je Gradski most. Mladi Banjalučani počinju da skaču u Vrbas i nadmeću se u tehnici i preciznosti.' },
-  { year: '1953', title: 'Karneval na Vrbasu', text: 'Klub akademičara Banjaluka organizuje prvi karneval i prve zvanične skokove sa mosta.' },
-  { year: '1955', title: 'Rođenje laste', text: 'Vrbaska lasta dobija svoj stil: drugačiji odraz, let i ulazak u vodu od svih drugih skokova.' },
-  { year: '1970-e', title: 'Susreti na Vrbasu', text: 'Karneval mijenja ime. Osamdesetih obale i Kastel okuplja i više od 10.000 posjetilaca.' },
-  { year: '1995', title: 'Ljeto na Vrbasu', text: 'Manifestacija dobija današnje ime. Skokovi sa mosta ostaju njen najgledaniji dio.' },
-  { year: '2019', title: 'Lasta na marki', text: 'Pošta Srpske izdaje marku „Banjalučka lasta“ u tiražu od 10.000, po dizajnu Božidara Došenovića.' },
-  { year: '2021', title: 'Osnovan klub', text: 'Skakači se okupljaju u udruženje „Banjalučka lasta“. Predsjednik je Igor Arsenić.' },
-  { year: '2026', title: 'Sedma titula', text: 'Igor Arsenić sedmi put izvodi najljepšu lastu. Nenad Arsenić se vraća na most poslije devet godina.' },
+/**
+ * Every winner from the board "Pobjednici skokova sa Gradskog mosta od 1979."
+ * (no competition in 1983, 1992 to 1996 and 2020), plus 2025 and 2026. Names
+ * the board gives surname first (Ostojić Marko, Jakupović Medo) are turned
+ * round. `city` is one thing Banja Luka lived through that year; each was
+ * checked against press or encyclopedia sources in October 2026.
+ */
+export const winners = [
+  { year: '1979', name: 'Asim Džaferagić', city: 'Marijan Beneš u Banjaluci nokautom osvaja titulu profesionalnog prvaka Evrope u boksu. U aprilu šesnaestogodišnji Gari Kasparov ovdje osvaja svoj prvi međunarodni turnir.' },
+  { year: '1980', name: 'Fadil Jakupović', city: 'Na tvrđavi Kastel počinju arheološka iskopavanja. Do 1986. ispod srednjovjekovnih bedema otkrivaju i ostatke iz antičkog doba.' },
+  { year: '1981', name: 'Omer Hasanbegović', city: 'Zemljotres magnitude 5,4 trese Banjaluku 13. avgusta, dvanaest godina poslije razornog 1969. Oštećene su brojne zgrade.' },
+  { year: '1982', name: 'Ibrahim Caca Bajbaga', city: 'Riblja čorba 6. decembra u dvorani Borik počinje jugoslovensku turneju albuma „Buvlja pijaca“.' },
+  { year: '1984', name: 'Nenad Arsenić', city: 'Banjalučanin Anton Josipović osvaja olimpijsko zlato u boksu u Los Anđelesu. Grad mu priređuje veliki doček.' },
+  { year: '1985', name: 'Omer Hasanbegović', city: 'Svjetska šampionka Maja Čiburdanidze pobjeđuje na velemajstorskom šahovskom turniru u Banjaluci, ispred Psahisa, Velimirovića i Kurajice.' },
+  { year: '1986', name: 'Nenad Arsenić', city: 'Rukometaši Borca Zlatan Arnautović, Zlatko Saračević i Irfan Smailagić postaju svjetski prvaci sa Jugoslavijom u Švajcarskoj.' },
+  { year: '1987', name: 'Omer Hasanbegović', city: 'Reprezentacija Jugoslavije pred 25.000 gledalaca na Gradskom stadionu pobjeđuje Austriju 4:0.' },
+  { year: '1988', name: 'Nenad Arsenić', city: 'Borac kao drugoligaš osvaja Kup maršala Tita. U finalu u Beogradu pobjeđuje Crvenu zvezdu 1:0, golom Senada Lupića.' },
+  { year: '1989', name: 'Nenad Arsenić', city: 'Golman Ante Jakovljević u posljednjem kolu brani penal Proleteru i vraća Borac u Prvu ligu Jugoslavije.' },
+  { year: '1990', name: 'Omer Hasanbegović', city: 'Banjalučani 18. novembra izlaze na prve višestranačke izbore u Bosni i Hercegovini poslije Drugog svjetskog rata.' },
+  { year: '1991', name: 'Miralem Juraldžija', city: 'Rukometaši Borca osvajaju IHF kup. Poslije 20:15 u Boriku, CSKA u revanšu u Moskvi dobija samo 24:23.' },
+  { year: '1997', name: 'Dario Mišlicki', city: 'Aerodrom Banjaluka se 18. novembra otvara za civilni saobraćaj.' },
+  { year: '1998', name: 'Nenad Arsenić', city: 'Banski dvor, nekadašnje sjedište bana Vrbaske banovine, i zvanično postaje gradski kulturni centar.' },
+  { year: '1999', name: 'Dario Mišlicki', city: 'Iz Banjaluke 29. januara polijeće prvi let Air Srpske, za Beograd.' },
+  { year: '2000', name: 'Dario Mišlicki', city: 'Košarkašica Slađana Golić, olimpijska vicešampionka iz Seula, oprašta se od košarke u punoj dvorani Borik.' },
+  { year: '2001', name: 'Dario Mišlicki', city: 'Zdravko Čolić 31. maja, poslije sedam godina, ponovo pjeva u Banjaluci.' },
+  { year: '2002', name: 'Dario Mišlicki', city: 'U Banjaluci se prvi put igra ATP čelendžer, teniski turnir na šljaci koji će se održati 21 put.' },
+  { year: '2003', name: 'Dario Mišlicki', city: 'Papa Jovan Pavle II 22. juna dolazi u Banjaluku i na misi u Petrićevcu proglašava blaženim Banjalučanina Ivana Merza.' },
+  { year: '2004', name: 'Marko Ostojić', city: 'U obnovljenom Hramu Hrista Spasitelja u centru grada 26. septembra služi se prva liturgija.' },
+  { year: '2005', name: 'Dario Mišlicki', city: 'Na Vrbasu se vozi Evropsko prvenstvo u raftingu, sa 19 ekipa iz devet zemalja.' },
+  { year: '2006', name: 'Dario Mišlicki i Elvis Ganić', city: 'Borac osvaja Prvu ligu Republike Srpske i plasira se u Premijer ligu Bosne i Hercegovine.' },
+  { year: '2007', name: 'Nenad Arsenić', city: 'Banjalučanka Marija Šestić pjeva za BiH na Eurosongu u Helsinkiju i zauzima 11. mjesto. Rađa se Kratkofil, prvi filmski festival u gradu.' },
+  { year: '2008', name: 'Nenad Arsenić', city: 'Na Kastelu se prvi put održava Demofest, festival neafirmisanih bendova. Prijavile su se 192 grupe.' },
+  { year: '2009', name: 'Nenad Arsenić', city: 'Svjetsko prvenstvo u raftingu dovodi na Vrbas takmičare iz 35 zemalja, uz noćni slalom u kanjonu Tijesno.' },
+  { year: '2010', name: 'Dario Mišlicki', city: 'Obnovljena robna kuća Boska ponovo se otvara 11. novembra. Mjesec kasnije iz Banjaluke polijeće simboličan let za Brisel: ukinute su vize za Šengen.' },
+  { year: '2011', name: 'Medo Jakupović', city: 'Borac prvi put u istoriji postaje prvak Bosne i Hercegovine.' },
+  { year: '2012', name: 'Borko Miladinović', city: 'Škotski Franz Ferdinand na Kastel Rock Festu 2. jula sviraju svoj prvi koncert u Bosni i Hercegovini.' },
+  { year: '2013', name: 'Borko Miladinović', city: 'Ljeto na Vrbasu slavi 60 godina. Manifestacija koja je počela karnevalom 1953. i danas se otvara skokovima sa Gradskog mosta.' },
+  { year: '2014', name: 'Marko Pavlović', city: 'U majskim poplavama Vrbas dostiže istorijski vodostaj. Proglašeno je vanredno stanje, a voda odnosi most u Česmi.' },
+  { year: '2015', name: 'Aleksandar Aleksić', city: 'Ulicama grada trči se prvi Banjalučki polumaraton.' },
+  { year: '2016', name: 'Igor Arsenić', city: 'Obnovljena Ferhadija, srušena 1993, otvara se 7. maja, tačno 23 godine poslije rušenja.' },
+  { year: '2017', name: 'Igor Arsenić', city: 'Dvorana Borik je domaćin Evropskog prvenstva u džiju-džicu za seniore.' },
+  { year: '2018', name: 'Đorđe Gajić', city: 'Banjaluka nosi titulu Evropskog grada sporta. Na Kastelu se prvi put održava viteški festival „Kastrum“.' },
+  { year: '2019', name: 'Đorđe Gajić', city: 'Otvoren je novi Zeleni most preko Vrbasa, a Pošta Srpske izdaje marku „Banjalučka lasta“.' },
+  { year: '2021', name: 'Đorđe Gajić', city: 'Skakači sa Gradskog mosta osnivaju udruženje „Banjalučka lasta“. Borac po drugi put postaje prvak BiH.' },
+  { year: '2022', name: 'Igor Arsenić', city: 'Svjetsko prvenstvo u raftingu ponovo je na Vrbasu: više od 60 ekipa iz 22 zemlje, uz svečano otvaranje na Kastelu.' },
+  { year: '2023', name: 'Igor Arsenić', city: 'Na prvom ATP 250 turniru u gradu, Srpska Openu, Dušan Lajović pobjeđuje Novaka Đokovića, a u finalu i Andreja Rubljova.' },
+  { year: '2024', name: 'Igor Arsenić', city: 'Borac je prvak BiH i prvi put igra ligašku fazu Lige konferencije.' },
+  { year: '2025', name: 'Igor Arsenić', city: 'Borac igra osminu finala Lige konferencije i ispada od Rapida tek u produžecima. Krajem marta poplave donose vanrednu situaciju u 16 naselja.' },
+  { year: '2026', name: 'Igor Arsenić', city: 'Vrbas u maju ugošćuje Svjetsko prvenstvo u kajaku na divljim vodama i Evropsko prvenstvo u raftingu. Borac osvaja četvrtu titulu prvaka BiH.' },
 ];
 
 export const people = {

@@ -10,12 +10,12 @@ import { ytImage } from '@/lib/youtube';
 /**
  * The camp chapter: the drone fly-in over Jezero Manjača as an opener, the
  * week's programme, the jump clips from the finale, then the kit and the
- * club's work off the tower. It follows the history page.
+ * club's work off the tower. It follows the winners page.
  */
 export default function Camp() {
   return (
     <>
-      {/* The third page of the stack (see PageStack): the opener slides over the history page as
+      {/* The third page of the stack (see PageStack): the opener slides over the winners page as
           a sheet, then flows into the programme on one stage (CampStage). */}
       <CampStage />
       <Reel />
