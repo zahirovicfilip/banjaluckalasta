@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Streaks from '@/components/ui/Streaks';
 import Image from 'next/image';
 import {
   animate,
@@ -175,17 +176,16 @@ export default function Winners() {
   return (
     <section
       aria-labelledby="pobjednici-naslov"
-      className="era-rail flex min-h-[100svh] flex-col pb-7 pt-[calc(env(safe-area-inset-top,0px)+7.75rem)] sm:pb-10 sm:pt-32"
+      className="era-rail relative isolate flex min-h-[100svh] flex-col pb-7 pt-[calc(env(safe-area-inset-top,0px)+7.75rem)] sm:pb-10 sm:pt-32"
     >
+      <Streaks side="right" />
       <div className="shell flex items-end justify-between gap-8">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">{winnersHead.eyebrow}</p>
-          {/* On phones the title is two lines, sized from the screen width so that "Pobjednici"
-              exactly fills the first (it is 7.75 em wide in this typeface). From 1024px it runs
-              on one line, which leaves the cards more height. */}
+          {/* One line at every width. On phones it is sized from the screen width so that it
+              exactly fills it ("Pobjednici skokova" is 7.5 em wide in Big Shoulders). */}
           <h2
             id="pobjednici-naslov"
-            className="display mt-3 max-w-[11ch] text-[min(3.25rem,calc((100vw-2rem)/7.9))] sm:text-[clamp(2.25rem,5.5vw,4rem)] lg:max-w-none lg:text-[clamp(2.5rem,3.6vw,3.5rem)]"
+            className="display whitespace-nowrap text-[min(4.5rem,calc((100vw-2rem)/7.6))] sm:text-[clamp(2.75rem,7vw,4.5rem)] lg:text-[clamp(3.5rem,5vw,5.5rem)]"
           >
             {winnersHead.title}
           </h2>
@@ -313,19 +313,16 @@ function Era({ item, index, position, current, entrance, slot, onPick }: EraProp
 
           {/* The year. Below 768px it is the whole card: upright, reading from the bottom up, as
               large as the card's height allows. From 768px it is a headline across the top. */}
-          <p className="display whitespace-nowrap text-accent max-md:absolute max-md:inset-0 max-md:grid max-md:place-items-center md:text-[22cqi]">
+          <p className="display whitespace-nowrap text-accent max-md:absolute max-md:inset-0 max-md:grid max-md:place-items-center md:text-[32cqi]">
             {/* cqw, not cqi: in upright text the "inline" direction is vertical, and the card is
-                only a container for its width. 3.7 em is the length of the longest year. */}
-            <span className="max-md:rotate-180 max-md:text-[min(50cqw,calc((var(--card-h)-22cqw)/3.7))] max-md:leading-none max-md:[writing-mode:vertical-rl]">
+                only a container for its width. 2 em is the length of the longest year in Big Shoulders. */}
+            <span className="max-md:rotate-180 max-md:text-[min(60cqw,calc((var(--card-h)-22cqw)/2))] max-md:leading-none max-md:[writing-mode:vertical-rl]">
               {item.year}
             </span>
           </p>
           <div className="max-md:sr-only">
-            <h3 className="text-[clamp(1.05rem,7.6cqi,1.6rem)] font-semibold leading-tight">{item.name}</h3>
-            <p className="mt-[5cqi] text-[clamp(0.625rem,3.4cqi,0.75rem)] font-semibold uppercase tracking-[0.14em] text-on-panel/55">
-              {winnersHead.cityLabel}
-            </p>
-            <p className="mt-[1.5cqi] text-[clamp(0.8125rem,5cqi,1.0625rem)] leading-snug text-on-panel/75">{item.city}</p>
+            <h3 className="display text-[clamp(1.4rem,10cqi,2.4rem)] leading-[0.95]">{item.name}</h3>
+            <p className="mt-[4cqi] text-[clamp(0.875rem,4.8cqi,1.0625rem)] leading-normal text-on-panel/75">{item.city}</p>
           </div>
         </article>
       </motion.div>
@@ -338,9 +335,8 @@ function Caption({ item, index, position }: { item: Item; index: number; positio
   const opacity = useTransform(position, (p) => clamp(1 - 2.5 * Math.abs(around(index - p)), 0, 1));
   return (
     <motion.div style={{ opacity }} className="col-start-1 row-start-1 mx-auto max-w-[38ch] text-center">
-      <p className="text-lg font-semibold leading-tight">{item.name}</p>
-      <p className="mt-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted">{winnersHead.cityLabel}</p>
-      <p className="mt-1 text-[0.95rem] leading-normal text-muted">{item.city}</p>
+      <p className="display text-[1.75rem] leading-[0.95]">{item.name}</p>
+      <p className="mt-2 text-[0.95rem] leading-normal text-muted">{item.city}</p>
     </motion.div>
   );
 }

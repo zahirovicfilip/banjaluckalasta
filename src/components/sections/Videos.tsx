@@ -1,11 +1,13 @@
 import Reveal from '@/components/ui/Reveal';
+import Streaks from '@/components/ui/Streaks';
 import YouTube from '@/components/ui/YouTube';
 import { videos } from '@/content/site';
 
 export default function Videos() {
   const [main, ...rest] = videos;
   return (
-    <section id="video" className="shell py-24 md:py-32">
+    <section id="video" className="relative isolate shell py-24 md:py-32">
+      <Streaks side="right" />
       <h2 className="display text-[clamp(2.5rem,5.5vw,5rem)]">Pogledaj skok</h2>
 
       <div className="mt-12 grid gap-4 md:mt-16 lg:grid-cols-3">

@@ -1,7 +1,6 @@
 import Nav from '@/components/Nav';
-import PageStack from '@/components/PageStack';
 import Hero from '@/components/sections/Hero';
-import Stats from '@/components/sections/Stats';
+import Story from '@/components/sections/Story';
 import Technique from '@/components/sections/Technique';
 import Winners from '@/components/sections/Winners';
 import People from '@/components/sections/People';
@@ -10,7 +9,9 @@ import Quote from '@/components/sections/Quote';
 import Videos from '@/components/sections/Videos';
 import Camp from '@/components/sections/Camp';
 import Join from '@/components/sections/Join';
+import Airsoft from '@/components/sections/Airsoft';
 import Footer from '@/components/sections/Footer';
+import { KampInterlude, LastaInterlude } from '@/components/sections/Interludes';
 import { hero } from '@/content/site';
 
 export default function Home() {
@@ -18,24 +19,28 @@ export default function Home() {
     <>
       <Nav />
       <main id="main">
-        {/* The hero and the winners page hold still while the next page slides over them.
-            The camp opener is the sheet that covers the winners page. */}
-        <PageStack
-          pages={[
-            { id: 'top', node: <Hero /> },
-            { id: 'pobjednici', node: <Winners /> },
-          ]}
-        >
-          <Camp />
-          <Stats />
-          <Technique />
-          <People />
-          <Results />
-          {/* The quote poster lives in the hero unless the animated hero is switched on. */}
-          {hero.animated && <Quote />}
-          <Videos />
-          <Join />
-        </PageStack>
+        {/* Between the first chapters, a still line with photos falling past it (Interlude). */}
+        <div id="top">
+          <Hero />
+        </div>
+        <LastaInterlude />
+        {/* The winners page arrives over the interlude as a light sheet with rounded corners. Its
+            bottom padding is the strip the next interlude slides over, so no text is ever under it. */}
+        <div id="pobjednici" className="relative z-10 -mt-9 -scroll-mt-[88px] rounded-t-[2.25rem] bg-bg pb-12 sm:-mt-12 sm:rounded-t-[3rem] sm:pb-16">
+          <Winners />
+        </div>
+        <KampInterlude />
+        <Camp />
+        <Story />
+        <Technique />
+        <People />
+        <Results />
+        {/* The quote poster lives in the hero unless the animated hero is switched on. */}
+        {hero.animated && <Quote />}
+        <Videos />
+        {/* The sister club, in its own colours (the whole page switches theme while it is on screen). */}
+        <Airsoft />
+        <Join />
       </main>
       <Footer />
     </>

@@ -63,7 +63,6 @@ export default function HeroDive() {
       <div className="absolute inset-0 z-0 overflow-x-clip">
         <div className="shell sticky top-0 h-[100svh]">
           <motion.div style={{ opacity: introOpacity }} className="absolute inset-0 flex flex-col px-4 pb-8 pt-24 md:px-10 md:pb-12 md:pt-28">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-ink">{hero.eyebrow}</p>
 
             <motion.h1
               style={{ y: titleY }}

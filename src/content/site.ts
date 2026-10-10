@@ -23,19 +23,22 @@ export const socials = [
   { id: 'facebook', label: 'Facebook', handle: 'Banjalučka Lasta', href: 'https://www.facebook.com/p/Banjalu%C4%8Dka-Lasta-61563609915496/' },
 ] as const;
 
-// Same order as the sections on the page.
+// Same order as the sections on the page, then the news page. The section links start with
+// "/" so they also lead back from the news pages; on the home page they just scroll.
 export const nav = [
-  { label: 'Pobjednici', href: '#pobjednici' },
-  { label: 'Kamp', href: '#kamp' },
-  { label: 'Lasta', href: '#lasta' },
-  { label: 'Skakači', href: '#skakaci' },
-  { label: 'Rezultati', href: '#rezultati' },
+  { label: 'Pobjednici', href: '/#pobjednici' },
+  { label: 'Kamp', href: '/#kamp' },
+  { label: 'Lasta', href: '/#lasta' },
+  { label: 'Skakači', href: '/#skakaci' },
+  { label: 'Rezultati', href: '/#rezultati' },
+  { label: 'Novosti', href: '/novosti' },
 ];
 
 /** One label per intent, used everywhere on the page. */
 export const cta = {
   join: { label: 'Prijavi se', href: '#prijava' },
   watch: { label: 'Pogledaj skok', href: '#video' },
+  news: { label: 'Novosti', href: '/novosti' },
 };
 
 export const hero = {
@@ -52,7 +55,6 @@ export const hero = {
   ],
   lead: 'Banjalučka lasta se skače samo sa Gradskog mosta: ruke iznad glave, tijelo ispruženo, let koji se drži što duže. Udruženje čuva tu tradiciju, trenira nove skakače i ljeti vodi kamp na Manjači.',
   // The rest of this block is only used by the animated hero.
-  eyebrow: 'Sportsko rekreativno udruženje · Banja Luka',
   title: 'Banjalučka lasta',
   sub: 'Dvanaest metara iznad Vrbasa. Ruke iznad glave, jedan odraz i let koji Banjaluka gleda od 1936.',
   // Only used by the animated hero: captions synced to the dive (scroll progress 0 to 1).
@@ -64,13 +66,44 @@ export const hero = {
   a11yLabel: 'Banjalučka lasta, znak kluba: skakač u letu unutar kruga',
 };
 
-// The section under the hero. The hero already carries 73 years and 12 m, so these are different facts.
-export const stats = [
-  { value: '1936', unit: '', label: 'završen je Gradski most i počeli su skokovi u Vrbas' },
-  { value: '7', unit: '', label: 'puta najljepša lasta: Igor Arsenić, predsjednik udruženja' },
-  { value: '2021', unit: '', label: 'osnovano udruženje „Banjalučka lasta“' },
-  { value: '75', unit: '', label: 'polaznika trening kampa na Manjači 2026.' },
-];
+/**
+ * The story of the jumps in three chapters (Story.tsx), from the press and the Tourist
+ * Organisation, see RESEARCH.md. 1936: TO Banjaluka says the jumps began when the bridge was
+ * built. 1953 and 1955: TO Banjaluka and bl-portal. 2021: the club, per its own words in
+ * bl-portal ("moramo nešto pokrenuti").
+ */
+export const story = {
+  title: 'Kako je počelo',
+  // Each sentence lights up word by word as it is scrolled into reading position (Story.tsx).
+  chapters: [
+    {
+      year: '1936',
+      beats: [
+        'Preko Vrbasa je završen Gradski most, dvanaest metara iznad vode.',
+        'Ubrzo se na njegovoj ogradi pojavljuju prvi skakači: mladi Banjalučani koji se usude da skoče u rijeku.',
+        'Nema sudija ni pravila. Nadmeću se u hrabrosti, i u tome čiji je skok ljepši.',
+      ],
+    },
+    {
+      year: '1953',
+      beats: [
+        'Članovi Kluba akademičara Banjaluka organizuju prvi Karneval na Vrbasu.',
+        'Skokovi sa mosta prvi put postaju zvanični, a hiljade ljudi ispune most i obale da vide svaki skok.',
+        'Dvije godine kasnije lasta dobija svoj stil: ruke iznad glave, tijelo ispruženo, let koji se drži što duže.',
+        'Karneval je od tada mijenjao ime, danas je to Ljeto na Vrbasu, ali skokovi su ostali njegov najvažniji dio.',
+      ],
+    },
+    {
+      year: '2021',
+      beats: [
+        'Kada su starije generacije stale, na mostu je ostalo malo skakača iz Banjaluke.',
+        'Skakači tada osnivaju udruženje „Banjalučka lasta“.',
+        'Žele da most ponovo pripada domaćim skakačima, i da mladi nauče lastu kako treba.',
+        'Predsjednik je Igor Arsenić, a ljeti udruženje vodi i trening kamp na Manjači.',
+      ],
+    },
+  ],
+};
 
 export const technique = {
   title: 'Ruke iznad glave.',
@@ -86,11 +119,14 @@ export const technique = {
   ],
 };
 
+/** The two chapter breaks: one still line each, with photos falling past it (Interlude.tsx). */
+export const interludes = {
+  lasta: { label: 'Banjalučka lasta u slikama', line: 'Ruke iznad glave.' },
+  kamp: { label: 'Kamp u slikama', line: 'Od mosta do tornja.' },
+};
+
 export const winnersHead = {
-  eyebrow: 'Sa Gradskog mosta od 1979.',
   title: 'Pobjednici skokova',
-  /** Small label over each year's line about the city. */
-  cityLabel: 'Te godine u Banjaluci',
 };
 
 /**
@@ -299,7 +335,7 @@ export const program = {
     {
       id: 'sri', short: 'Sri', date: '17. jun', name: 'Srijeda',
       summary: 'Trka SUP daskama na jezeru i obuka ronjenja.',
-      alt: 'Trka na SUP daskama uz plažu jezera',
+      alt: 'Četiri takmičara veslaju na velikoj SUP dasci po jezeru',
       items: [
         ...morning,
         { time: '11:30', label: 'Ručak' },
@@ -324,7 +360,7 @@ export const program = {
     {
       id: 'pet', short: 'Pet', date: '19. jun', name: 'Petak',
       summary: 'Trening skokova i snage, pa surfanje na vodi.',
-      alt: 'Trening borilačkih vještina: bacanje na terenu',
+      alt: 'Skakač se odražava sa platforme tornja za skokove',
       items: [
         ...morning,
         { time: '11:30', label: 'Ručak' },
@@ -336,7 +372,7 @@ export const program = {
     {
       id: 'sub', short: 'Sub', date: '20. jun', name: 'Subota',
       summary: 'Vježbe na plaži i dan za porodicu.',
-      alt: 'Polaznici kampa u plavim dresovima se pozdravljaju',
+      alt: 'Publika i kajaci uz obalu jezera Manjača',
       items: [
         { time: '7:00', label: 'Smotra' },
         { time: '8:00', label: 'Doručak' },
@@ -350,7 +386,7 @@ export const program = {
     {
       id: 'ned', short: 'Ned', date: '21. jun', name: 'Nedjelja',
       summary: 'Takmičenje u skokovima i koncert Borisa Režaka.',
-      alt: 'Skakač u letu iznad tornja sa platformama',
+      alt: 'Skakač u lasti ispred tornja, na takmičenju u skokovima',
       items: [
         { time: '7:00', label: 'Smotra' },
         { time: '8:00', label: 'Doručak' },
@@ -367,6 +403,36 @@ export const program = {
   ],
 };
 
+/**
+ * The airsoft club run by the same people: Airsoft klub „Arhangel Mihailo“, Banja Luka.
+ * Everything here is from the club's Instagram (@airsoftklub.arhangelmihailo, October 2026):
+ * its bio, and the posters for its game days, training days and the 8x8 tournament.
+ * The images in src/assets/airsoft/ are the web-size copies from that profile.
+ */
+export const airsoft = {
+  // The navbar shows this instead of "Banjalučka lasta" while the section is on screen.
+  navName: ['Airsoft', 'Arhangel Mihailo'] as const,
+  title: 'Arhangel Mihailo',
+  lead: 'Airsoft igre, događaji i teambuildinzi na klupskom poligonu u Banjaluci. Adrenalin, taktika i zabava: dođi sam ili sa ekipom.',
+  link: 'Iza kluba stoji Igor Arsenić, predsjednik Banjalučke laste, a airsoft je bio i dio trening kampa na Manjači.',
+  values: ['Realna akcija', 'Timski duh', 'Fair play', 'Adrenalin'],
+  formats: [
+    { name: 'Classic Game Day', text: 'Dan otvorenih vrata: dođi, isprobaj, igraj. Nemaš opremu? Za posjetioce je sve potpuno besplatno.' },
+    { name: 'Trening dan', text: 'Spremi se, treniraj, poboljšaj se. Ulaz je besplatan za članove i za one sa svojom opremom.' },
+    { name: 'Turnir 8×8', text: 'Ekipe od po osam igrača na poligonu. Na turniru 2. oktobra 2026. prva nagrada bila je 5.000 KM.' },
+    { name: 'Teambuilding', text: 'Igra za firme, društva i ekipe koje žele da se okupe i provjere timski duh.' },
+  ],
+  slogan: 'Okupi ekipu i dođi da osjetiš adrenalin!',
+  instagram: { label: 'Prati klub na Instagramu', handle: '@airsoftklub.arhangelmihailo', href: 'https://www.instagram.com/airsoftklub.arhangelmihailo/' },
+  alts: {
+    logo: 'Znak airsoft kluba „Arhangel Mihailo“: arhangel sa krilima i štitom',
+    players: 'Dva igrača u taktičkoj opremi na poligonu kluba',
+    aim: 'Igrač nišani na poligonu, plakat „Pokret. Preciznost. Timski rad.“',
+    gameDay: 'Plakat za Classic Game Day, 18. jul 2026.',
+    tournament: 'Plakat za Turnir 8x8, 2. oktobar 2026, prva nagrada 5.000 KM',
+  },
+};
+
 /** Jump clips from the camp's final competition. Files: public/media/skok-NN.mp4 + .jpg */
 export const finale = {
   title: 'Finale na tornju',
@@ -379,24 +445,30 @@ export const finale = {
   ] as { id: string; name?: string }[],
 };
 
-export const jersey = {
-  title: 'Dres kampa',
-  text: 'Svi polaznici nose dres kampa. Ovo je dizajn iz 2025, u bijeloj i rozoj varijanti.',
-  altWhite: 'Dres trening kampa 2025, bijela varijanta',
-  altPink: 'Dres trening kampa 2025, roza varijanta',
+/**
+ * "Klub van mosta": the club's work off the bridge. The rafting and Vrbas cleanup (31 May,
+ * 100+ registered, expert support from Vode Srpske) is from the press, see RESEARCH.md.
+ * TODO: photos from the cleanup and the playgrounds, when the club sends them.
+ */
+export const community = {
+  title: 'Klub van mosta',
+  lead: 'Lasta nije samo skok sa mosta. Udruženje radi i za rijeku i za grad.',
+  stat: { value: '100+', label: 'Banjalučana prijavilo se za besplatan rafting i čišćenje Vrbasa.' },
+  actions: [
+    {
+      title: 'Rafting i čišćenje Vrbasa',
+      text: 'Spust kanjonom Vrbasa uz sakupljanje otpada sa obala i iz korita, uz stručnu podršku Voda Srpske.',
+    },
+    {
+      title: 'Igrališta i naselja',
+      text: 'Članovi kluba uređuju školska igrališta i dijelove naselja u gradu.',
+    },
+  ],
+  alts: {
+    members: 'Dvojica se grle i slave na obali jezera, poslije skoka',
+    water: 'Mladi u kajaku na jezeru, pored skoka sa tornja',
+  },
 };
-
-export const actions = [
-  {
-    title: 'Rafting i čišćenje Vrbasa',
-    photo: { id: 'OF_8684YXWE', frame: 'maxres2' as const }, // TODO: photo from the club's own cleanup
-    text: 'Besplatan spust kanjonom Vrbasa uz sakupljanje otpada sa obala i iz korita. Prijavilo se više od 100 Banjalučana, uz stručnu podršku Voda Srpske.',
-  },
-  {
-    title: 'Igrališta i naselja',
-    text: 'Članovi kluba uređuju školska igrališta i dijelove naselja u gradu.',
-  },
-];
 
 export const join = {
   title: 'Skoči sa nama.',

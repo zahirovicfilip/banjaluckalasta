@@ -5,7 +5,9 @@ import Image from 'next/image';
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { FacebookLogoIcon, InstagramLogoIcon, TiktokLogoIcon } from '@phosphor-icons/react';
 import logo from '@/assets/logo.png';
-import { nav, site, socials } from '@/content/site';
+import airsoftLogo from '@/assets/airsoft/logo.jpg';
+import { airsoft, nav, site, socials } from '@/content/site';
+import ThemeSwitch from '@/components/ThemeSwitch';
 
 const socialIcons = { instagram: InstagramLogoIcon, tiktok: TiktokLogoIcon, facebook: FacebookLogoIcon };
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -18,10 +20,10 @@ const easeInOut = [0.77, 0, 0.175, 1] as const;
  * Left: the crest and the name. The crest is not inside the bar: it hangs off
  * its bottom edge, half on the bar and half over the page. The name beside it
  * is the hero title in miniature, same font, two lines, two tones.
- * Right: the links as darker pills with white labels (.nav-pill) from 768px up,
+ * Right: the links as darker pills with white labels (.nav-pill) from 1024px up,
  * the menu button below that. Name left and buttons right never share space.
  *
- * Below 768px the links live in a full-screen menu, and on desktop too once the
+ * Below 1024px the links live in a full-screen menu, and on desktop too once the
  * visitor is past the camp programme and scrolling on (see `compact`). It opens out of
  * the menu button: a blue circle that grows from the button until it covers
  * the screen, and the links rise in behind it. Closing runs the same circle
@@ -35,7 +37,7 @@ export default function Nav() {
 
   // Desktop only: once the camp programme is behind the visitor, the links fold into the
   // menu button while they scroll on, and come back as soon as they scroll up a little.
-  // (On phones the menu button is always there and nothing changes.)
+  // (Below 1024px the menu button is always there and nothing changes.)
   const [compact, setCompact] = useState(false);
   const last = useRef(0);
   const climb = useRef(0);
@@ -80,7 +82,7 @@ export default function Nav() {
       setOpen(false);
       button.current?.focus();
     };
-    const desktop = window.matchMedia('(min-width: 768px)');
+    const desktop = window.matchMedia('(min-width: 1024px)');
     // On desktop the menu only exists while the links are folded away.
     const onWide = () => {
       if (desktop.matches && !compactRef.current) setOpen(false);
@@ -115,21 +117,33 @@ export default function Nav() {
                   the gap all tighten a little, so the menu button stays inside the bar. */}
               <div className="relative flex h-[3.75rem] items-center justify-between gap-4 pl-[7.5rem] pr-2 max-[359px]:gap-2 max-[359px]:pl-[6.5rem] lg:pl-[9.375rem]">
                 <a
-                  href="#top"
+                  href="/#top"
                   onClick={() => setOpen(false)}
                   aria-label={`${site.name}, na vrh stranice`}
                   data-wordmark
                   // While the camp badge sits in the bar (CampStage), it takes this name's place. The
                   // name steps aside quickly; coming back it fades in where it stands, slightly after
                   // the badge starts to leave, so the two overlap into one crossfade, not a swap.
-                  className="display text-[0.95rem] leading-[0.9] transition-[opacity,filter] delay-[150ms] duration-[600ms] ease-[cubic-bezier(0.77,0,0.175,1)] max-[359px]:text-[0.85rem] lg:text-[1.05rem] [html[data-camp-badge]_&]:opacity-0 [html[data-camp-badge]_&]:blur-[2px] [html[data-camp-badge]_&]:delay-0 [html[data-camp-badge]_&]:duration-200"
+                  className="display relative text-[1.4rem] leading-[0.85] transition-[opacity,filter] delay-[150ms] duration-[600ms] ease-[cubic-bezier(0.77,0,0.175,1)] max-[359px]:text-[1.2rem] lg:text-[1.6rem] [html[data-camp-badge]_&]:opacity-0 [html[data-camp-badge]_&]:blur-[2px] [html[data-camp-badge]_&]:delay-0 [html[data-camp-badge]_&]:duration-200"
                 >
-                  <span className="block text-white">{first}</span>
-                  <span className="block text-deep">{rest.join(' ')}</span>
+                  {/* While the airsoft section is on screen (Airsoft.tsx sets <html data-airsoft>) the
+                      name swaps for the airsoft club's, in the same lockup, as a crossfade in place.
+                      The airsoft name takes no room of its own, so the bar's layout never changes. */}
+                  <span className="block transition-[opacity,filter] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] [html[data-airsoft]_&]:opacity-0 [html[data-airsoft]_&]:blur-[2px]">
+                    <span className="block text-white">{first}</span>
+                    <span className="block text-deep">{rest.join(' ')}</span>
+                  </span>
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-[0.82em] opacity-0 blur-[2px] transition-[opacity,filter] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] [html[data-airsoft]_&]:opacity-100 [html[data-airsoft]_&]:blur-none"
+                  >
+                    <span className="block text-white">{airsoft.navName[0]}</span>
+                    <span className="block text-deep">{airsoft.navName[1]}</span>
+                  </span>
                 </a>
 
                 {/*
-                  The links and the menu button share one spot on the right. From 768px the links
+                  The links and the menu button share one spot on the right. From 1024px the links
                   show and the button hides, until `compact`: then the links fold away into the
                   button, the one nearest it first, and the button comes up in their place.
                   CSS transitions, so a quick change of mind reverses smoothly from wherever it is.
@@ -139,14 +153,14 @@ export default function Nav() {
                     aria-label="Glavna navigacija"
                     aria-hidden={compact || undefined}
                     inert={compact}
-                    className="col-start-1 row-start-1 hidden items-center gap-1.5 md:flex"
+                    className="col-start-1 row-start-1 hidden items-center gap-1.5 lg:flex"
                   >
                     {nav.map((item, i) => (
                       <a
                         key={item.href}
                         href={item.href}
                         style={{ transitionDelay: `${(nav.length - 1 - i) * 35}ms` }}
-                        className={`nav-pill transition-[opacity,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transform-none max-lg:px-3 ${
+                        className={`nav-pill transition-[opacity,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transform-none ${
                           compact ? 'pointer-events-none translate-x-4 scale-90 opacity-0' : ''
                         }`}
                       >
@@ -157,7 +171,7 @@ export default function Nav() {
 
                   <div
                     className={`col-start-1 row-start-1 flex items-center transition-[opacity,transform] duration-200 ease-[var(--ease-out-expo)] motion-reduce:transform-none ${
-                      compact ? 'md:delay-100' : 'md:pointer-events-none md:scale-90 md:opacity-0'
+                      compact ? 'lg:delay-100' : 'lg:pointer-events-none lg:scale-90 lg:opacity-0'
                     }`}
                   >
                     <button
@@ -167,7 +181,7 @@ export default function Nav() {
                       aria-expanded={open}
                       aria-controls="mobile-menu"
                       aria-label={open ? 'Zatvori meni' : 'Otvori meni'}
-                      className={`nav-pill grid size-11 place-items-center p-0 ${compact ? '' : 'md:invisible'}`}
+                      className={`nav-pill grid size-11 place-items-center p-0 ${compact ? '' : 'lg:invisible'}`}
                     >
                       {/* Two bars that cross into an X. */}
                       <span aria-hidden className="relative block h-3 w-5">
@@ -190,13 +204,28 @@ export default function Nav() {
 
             {/* The crest. Same destination as the name beside it, so keyboard and screen readers skip it. */}
             <a
-              href="#top"
+              href="/#top"
               onClick={() => setOpen(false)}
               aria-hidden
               tabIndex={-1}
               className="pointer-events-auto absolute left-[2.75rem] top-[3.75rem] z-10 block -translate-y-1/2 rounded-full max-[359px]:left-[1.75rem] shadow-[0_10px_22px_-8px_rgb(0_25_40/0.6)] ring-[3px] ring-white transition-[scale] duration-150 ease-[var(--ease-out-expo)] hover:scale-105 active:scale-95 lg:left-[3.5rem]"
             >
-              <Image src={logo} alt="" width={80} height={80} priority className="size-16 lg:size-20" />
+              <Image
+                src={logo}
+                alt=""
+                width={80}
+                height={80}
+                priority
+                className="size-16 rounded-full transition-[opacity,filter] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] lg:size-20 [html[data-airsoft]_&]:opacity-0 [html[data-airsoft]_&]:blur-[2px]"
+              />
+              {/* The airsoft club's emblem takes the crest's place with the name (see above). */}
+              <Image
+                src={airsoftLogo}
+                alt=""
+                width={80}
+                height={80}
+                className="absolute inset-0 size-16 rounded-full opacity-0 blur-[2px] transition-[opacity,filter] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)] lg:size-20 [html[data-airsoft]_&]:opacity-100 [html[data-airsoft]_&]:blur-none"
+              />
             </a>
           </div>
         </div>
@@ -211,7 +240,7 @@ export default function Nav() {
             animate={reduce ? { opacity: 1 } : { clipPath: flooded }}
             exit={reduce ? { opacity: 0 } : { clipPath: closed, transition: { duration: 0.3, ease: easeInOut } }}
             transition={reduce ? { duration: 0.2 } : { duration: 0.45, ease: easeInOut }}
-            className={`fixed inset-0 z-40 flex flex-col bg-accent text-on-accent ${compact ? '' : 'md:hidden'}`}
+            className={`fixed inset-0 z-40 flex flex-col bg-accent text-on-accent ${compact ? '' : 'lg:hidden'}`}
           >
             <motion.div
               variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: reduce ? 0 : 0.18 } } }}
@@ -233,7 +262,12 @@ export default function Nav() {
                 ))}
               </ul>
 
-              <motion.ul variants={rise} className="mt-auto flex gap-2 pt-10">
+              {/* Light, dark or the device's setting (the default). */}
+              <motion.div variants={rise} className="mt-auto pt-10">
+                <ThemeSwitch />
+              </motion.div>
+
+              <motion.ul variants={rise} className="mt-4 flex gap-2">
                 {socials.map((s) => {
                   const Icon = socialIcons[s.id];
                   return (

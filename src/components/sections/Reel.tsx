@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Streaks from '@/components/ui/Streaks';
 import Image from 'next/image';
 import { useReducedMotion } from 'motion/react';
 import { ArrowLeftIcon, ArrowRightIcon, PauseIcon, PlayIcon } from '@phosphor-icons/react';
@@ -136,7 +137,8 @@ export default function Reel() {
     'grid size-12 place-items-center rounded-full border border-line text-ink transition-[transform,opacity,border-color] duration-150 ease-out hover:border-ink active:scale-95 disabled:pointer-events-none disabled:opacity-35';
 
   return (
-    <div id="finale" className="border-t border-line py-24 md:py-32">
+    <div id="finale" className="relative isolate border-t border-line py-24 md:py-32">
+      <Streaks side="left" />
       <div className="shell flex items-end justify-between gap-8">
         <div>
           <h3 className="display text-[clamp(2.25rem,4.8vw,4.5rem)]">{finale.title}</h3>

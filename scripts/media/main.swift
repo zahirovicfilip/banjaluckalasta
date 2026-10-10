@@ -182,14 +182,24 @@ case "bbox":
 
 case "img":
   // Crop (pixel box, top-left origin), rotate, scale down and re-encode one image.
+  // "invert" flips the colours: Adobe's CMYK JPEGs (photos pulled out of the print PDF) decode
+  // inverted. It flips the CMYK values themselves, before they become RGB.
   guard var img = loadCG(args[1]) else { print("cannot load \(args[1])"); exit(1) }
   let out = args[2]
-  var maxW: CGFloat = .greatestFiniteMagnitude, q = 0.8, rot = 0
+  var maxW: CGFloat = .greatestFiniteMagnitude, q = 0.8, rot = 0, invert = false
   for a in args.dropFirst(3) {
     if a.hasPrefix("crop=") { let v = a.dropFirst(5).split(separator: ",").map { CGFloat(Double($0)!) }; img = img.cropping(to: CGRect(x: v[0], y: v[1], width: v[2], height: v[3]))! }
     if a.hasPrefix("w=") { maxW = CGFloat(Double(a.dropFirst(2))!) }
     if a.hasPrefix("q=") { q = Double(a.dropFirst(2))! }
     if a.hasPrefix("rot=") { rot = Int(a.dropFirst(4))! }
+    if a == "invert" { invert = true }
+  }
+  if invert, let cmyk = CGContext(data: nil, width: img.width, height: img.height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceCMYK(), bitmapInfo: CGImageAlphaInfo.none.rawValue) {
+    cmyk.draw(img, in: CGRect(x: 0, y: 0, width: img.width, height: img.height))
+    if let px = cmyk.data?.assumingMemoryBound(to: UInt8.self) {
+      for y in 0..<img.height { let row = px + y * cmyk.bytesPerRow; for x in 0..<(img.width * 4) { row[x] = 255 &- row[x] } }
+    }
+    img = cmyk.makeImage()!
   }
   let turned = rot == 90 || rot == 270
   let srcW = CGFloat(turned ? img.height : img.width), srcH = CGFloat(turned ? img.width : img.height)

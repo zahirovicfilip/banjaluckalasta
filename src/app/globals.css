@@ -1,6 +1,23 @@
 @import 'tailwindcss';
 
 /*
+ * Dark mode follows the device unless the visitor picks a theme in the menu (ThemeSwitch.tsx),
+ * which sets <html data-theme="light|dark">. So "dark" means: chosen dark, or the device is
+ * dark and light was not chosen. Every `dark:` utility and every `@variant dark` block below
+ * goes through this one rule.
+ */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
+
+/*
  * Design tokens. The palette is the club's own, sampled from its artwork
  * (brochure 2026, logo PSD): navy #003156, blue #009DE1, deep #001928.
  * One accent (the blue), cool neutrals, auto light/dark.
@@ -9,7 +26,7 @@
  * surfaces (media, panels, inputs) use --radius. Two exceptions, both large
  * shapes: the winners cards (.squircle) and the rounded top edge of a page
  * that slides over the one before it.
- * Z-index scale: stacked pages 0, 10 and 20 (see PageStack), phone menu 40,
+ * Z-index scale: a page that arrives over the one before it 10, phone menu 40,
  * nav 50, skip link 60.
  * The navbar is a floating pill in the flat brand blue.
  */
@@ -44,8 +61,8 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+:root {
+  @variant dark {
     --bg: #03162b;
     --surface: #0a2540;
     --ink: #eaf2f8;
@@ -56,6 +73,63 @@
     --hero-figure: var(--blue);
     --hero-title: #eaf2f8;
     color-scheme: dark;
+  }
+}
+
+/*
+ * Airsoft theme. While the Arhangel Mihailo section (Airsoft.tsx) is in the middle of the
+ * screen, <html data-airsoft> swaps the club's blues for the airsoft club's own colours:
+ * near-black, olive and the acid green of its posters. The base colours are registered
+ * as real colours (@property), so the page fades from one palette to the other instead of
+ * jumping; everything built on them (accent, panels, the navbar) follows.
+ */
+@property --navy { syntax: '<color>'; inherits: true; initial-value: #003156; }
+@property --blue { syntax: '<color>'; inherits: true; initial-value: #009de1; }
+@property --deep { syntax: '<color>'; inherits: true; initial-value: #001928; }
+@property --bg { syntax: '<color>'; inherits: true; initial-value: #f4f7fa; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #e7eef4; }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #003156; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #4a6480; }
+@property --line { syntax: '<color>'; inherits: true; initial-value: #cfdbe6; }
+@property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #0074ae; }
+@property --panel { syntax: '<color>'; inherits: true; initial-value: #003156; }
+
+:root {
+  transition:
+    --navy 700ms ease,
+    --blue 700ms ease,
+    --deep 700ms ease,
+    --bg 700ms ease,
+    --surface 700ms ease,
+    --ink 700ms ease,
+    --muted 700ms ease,
+    --line 700ms ease,
+    --accent-ink 700ms ease,
+    --panel 700ms ease;
+}
+
+html[data-airsoft] {
+  --navy: #232d17;
+  --blue: #8fae3a;
+  --deep: #0e1209;
+  --bg: #ecede2;
+  --surface: #dfe2d0;
+  --ink: #1d2513;
+  --muted: #5a6448;
+  --line: #cdd2bb;
+  --accent-ink: #5b7322;
+  --panel: #232d17;
+}
+
+html[data-airsoft] {
+  @variant dark {
+    --bg: #0f130b;
+    --surface: #1a2013;
+    --ink: #e8ecdc;
+    --muted: #a3ad8e;
+    --line: #262e1c;
+    --accent-ink: #a8c45a;
+    --panel: #1c2414;
   }
 }
 
@@ -86,7 +160,9 @@
   --color-on-panel: var(--on-panel);
   --color-navy: var(--navy);
   --color-deep: var(--deep);
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-big-shoulders), ui-sans-serif, system-ui, sans-serif;
+  --font-stencil: var(--font-big-shoulders-stencil), var(--font-big-shoulders), sans-serif;
   --radius-panel: var(--radius);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -99,10 +175,35 @@ html {
 }
 
 body {
+  /* Clip, not hidden: nothing may scroll the page sideways, and sticky layers keep working. */
+  overflow-x: clip;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Film grain over the whole site, barely there: it takes the flat, digital edge off the plain
+ * backgrounds and sits the page closer to the club's video footage. One fixed layer that never
+ * takes clicks and never repaints while scrolling (a static noise tile, no blend mode).
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: var(--grain-opacity, 0.045);
+  filter: var(--grain-filter, none);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* On dark the grain is light specks instead of dark ones. */
+body {
+  @variant dark {
+    --grain-opacity: 0.07;
+    --grain-filter: invert(1);
+  }
 }
 
 ::selection {
@@ -129,12 +230,18 @@ button,
 }
 
 @layer components {
-  /* Expanded, heavy display cut of Archivo for headlines and numbers. */
+  /*
+   * Headlines and numbers: Big Shoulders, heavy, upper case. A condensed face is already
+   * tight, so no extra tracking (the type designer spaced it); a hair of positive tracking
+   * only at small sizes, where caps need air. Leading is under 1 because
+   * upper case has no descenders; wrapped headlines still clear each other.
+   */
   .display {
-    font-stretch: 125%;
+    font-family: var(--font-big-shoulders), ui-sans-serif, system-ui, sans-serif;
+    font-optical-sizing: auto;
     font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 0.92;
+    letter-spacing: 0;
+    line-height: 0.9;
     text-transform: uppercase;
   }
 
@@ -252,20 +359,6 @@ button,
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-}
-
-/*
- * Stacked pages (PageStack). A page holds still while the next one slides over
- * it. One that is taller than the screen scrolls first and holds at its bottom
- * edge, so nothing on it is cut off; --page-h is its measured height.
- * Not inside a layer on purpose: it has to win over the `relative` utility,
- * which is what applies under reduced motion.
- */
-@media (prefers-reduced-motion: no-preference) {
-  .stack-page {
-    position: sticky;
-    top: min(0px, calc(100svh - var(--page-h, 100svh)));
   }
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Streaks from '@/components/ui/Streaks';
 import { CheckCircleIcon, CircleNotchIcon, WarningCircleIcon, InstagramLogoIcon, TiktokLogoIcon, FacebookLogoIcon, ArrowUpRightIcon } from '@phosphor-icons/react';
 import { join, socials } from '@/content/site';
 
@@ -37,7 +38,8 @@ export default function Join() {
   }
 
   return (
-    <section id="prijava" className="border-t border-line bg-surface">
+    <section id="prijava" className="relative isolate border-t border-line bg-surface">
+      <Streaks side="left" />
       <div className="shell grid gap-14 py-24 md:py-32 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-5">
           <h2 className="display text-[clamp(3rem,7vw,6.5rem)]">{join.title}</h2>

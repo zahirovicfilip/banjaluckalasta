@@ -41,17 +41,32 @@ if [ "$WHAT" = all ] || [ "$WHAT" = images ]; then
   $BIN img "$BRO/Pozadina.png" "$A/texture-tall.jpg" q=0.82
   $BIN img "$BRO/Untitled-1.png" "$A/pattern.png" crop=600,500,1300,2400 w=800
 
-  echo "== Camp photos, one square per day"
+  echo "== Camp photos, one per day (CampProgram.tsx crops them with object-position)"
   $BIN frames "$SRC/Dron/DJI_0757.MP4" "$TMP/d1" 2160 "6.0" >/dev/null
   $BIN img "$TMP/d1_00.jpg" "$A/kamp/dan-1.jpg" crop=0,1000,2160,2160 w=1000 q=0.8
   $BIN frames "$SRC/Skokovi/Skok5.mp4" "$TMP/d2" 1080 "1.55" >/dev/null
   $BIN img "$TMP/d2_00.jpg" "$A/kamp/dan-2.jpg" crop=0,430,1080,1080 w=1000 q=0.8
-  $BIN img "$BRO/Brošura 2026-04.png" "$A/kamp/dan-3.jpg" crop=1400,465,760,760 q=0.84
+  # Wednesday: the SUP race photo, full size from the print PDF. Its CMYK JPEG is stored inverted
+  # (the PDF flips it back with a /Decode array), hence "invert".
+  python3 - "$BRO/Brošura 2026 - PRINT.pdf" "$TMP/sup.jpg" <<'PY'
+import re, sys
+data = open(sys.argv[1], 'rb').read()
+for m in re.finditer(rb'/Width\s*1900\b', data):
+    s = data.find(b'stream', m.start()); b = s + 6
+    while data[b:b+1] in (b'\r', b'\n'): b += 1
+    e = data.find(b'endstream', b)
+    if data[b:b+2] == b'\xff\xd8': open(sys.argv[2], 'wb').write(data[b:e].rstrip(b'\r\n')); break
+PY
+  $BIN img "$TMP/sup.jpg" "$A/kamp/dan-3.jpg" invert q=0.84
   $BIN frames "$SRC/Dron/DJI_0786.MP4" "$TMP/d4" 2160 "22.0" >/dev/null
   $BIN img "$TMP/d4_00.jpg" "$A/kamp/dan-4.jpg" crop=0,900,2160,2160 w=1000 q=0.8
-  $BIN img "$BRO/Brošura 2026-06.png" "$A/kamp/dan-5.jpg" crop=1152,212,910,910 q=0.84
-  $BIN img "$BRO/Brošura 2026-07.png" "$A/kamp/dan-6.jpg" crop=205,219,1065,1065 q=0.84
-  $BIN img "$BRO/Brošura 2026-09.png" "$A/kamp/dan-7.jpg" crop=985,92,636,636 q=0.86
+  # Friday, Saturday, Sunday: full-HD frames from the jump clips (the brochure's own photos of
+  # those days are only about 520 px wide).
+  $BIN frames "$SRC/Skokovi/Skok16.mp4" "$TMP/d5" 1080 "1.5,1.5" >/dev/null && cp "$TMP/d5_00.jpg" "$A/kamp/dan-5.jpg"
+  $BIN frames "$SRC/Skokovi/Skok19.mp4" "$TMP/d6" 1080 "4.2,4.2" >/dev/null && cp "$TMP/d6_00.jpg" "$A/kamp/dan-6.jpg"
+  $BIN frames "$SRC/Skokovi/Skok22.mp4" "$TMP/d7" 1080 "2.2,2.2" >/dev/null && cp "$TMP/d7_00.jpg" "$A/kamp/dan-7.jpg"
+  # Klub van mosta (Community.tsx)
+  $BIN frames "$SRC/Skokovi/DusanSkok1.mp4" "$TMP/zaj" 1080 "10.6,10.6" >/dev/null && cp "$TMP/zaj_00.jpg" "$A/kamp/zajednica.jpg"
 
   echo "== Icons and share image"
   $BIN img "$A/logo.png" src/app/icon.png w=256

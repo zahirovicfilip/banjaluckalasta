@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Streaks from '@/components/ui/Streaks';
 import { useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react';
 import { ArrowRightIcon } from '@phosphor-icons/react';
@@ -75,8 +76,9 @@ export default function HeroPoster() {
       onTouchMove={onTouchMove}
       onTouchEnd={onPointerLeave}
       onTouchCancel={onPointerLeave}
-      className="relative overflow-x-clip"
+      className="relative isolate overflow-x-clip"
     >
+      <Streaks side="left" />
       {/*
         Three pieces on one grid: the numbers, the poster, the explanation with the buttons.
         Phones: the numbers left of the poster, level with its top edge, the explanation under
@@ -85,7 +87,7 @@ export default function HeroPoster() {
         From 640px: numbers above the explanation in the left column, both centred against
         the poster, which takes the right column.
       */}
-      <div className="shell grid min-h-[100svh] grid-cols-[minmax(0,1fr)_auto] [--poster-w:min(46vw,19rem,30svh)] content-start gap-y-5 pb-10 pt-[7.5rem] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] sm:content-center sm:gap-y-9 sm:pb-16 sm:pt-28">
+      <div className="shell grid min-h-[100svh] grid-cols-[minmax(0,1fr)_auto] [--poster-w:min(52vw,19rem)] content-center gap-x-3 gap-y-7 pb-10 pt-[7.5rem] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] sm:gap-x-0 sm:gap-y-9 sm:pb-16 sm:pt-28">
         {/* The name is in the navbar, so the page title is for screen readers and search engines only. */}
         <h1 className="sr-only">{hero.srTitle}</h1>
 
@@ -102,12 +104,12 @@ export default function HeroPoster() {
           <span aria-hidden className="float-right h-[calc(var(--poster-w)*0.46)] w-0 sm:hidden" />
           <span
             aria-hidden
-            className="float-right clear-right h-[calc(var(--poster-w)*0.5)] w-[calc(var(--poster-w)*0.3)] [shape-outside:ellipse(100%_50%_at_100%_50%)] sm:hidden"
+            className="float-right clear-right h-[calc(var(--poster-w)*0.5)] w-[calc(var(--poster-w)*0.24)] [shape-outside:ellipse(100%_50%_at_100%_50%)] sm:hidden"
           />
           <div className="hero-rise flex gap-x-[7cqi] sm:grid sm:grid-cols-2 sm:gap-x-[5cqi]">
             {hero.stats.map((s, i) => (
               <div key={s.value} className="w-min sm:w-auto">
-                <p className={`display whitespace-nowrap text-[25cqi] leading-[0.8] sm:text-[24cqi] ${i === 1 ? 'text-accent' : ''}`}>
+                <p className={`display whitespace-nowrap text-[40cqi] leading-[0.8] sm:text-[34cqi] ${i === 1 ? 'text-accent' : ''}`}>
                   {s.value}
                   <span className="align-top text-[0.4em]">{s.unit}</span>
                 </p>
@@ -118,23 +120,24 @@ export default function HeroPoster() {
               </div>
             ))}
           </div>
-          <p className="hero-rise mt-3 pr-2.5 text-[0.84rem] leading-snug sm:hidden" style={{ '--i': 1 } as React.CSSProperties}>
+          <p className="hero-rise mt-4 text-[0.95rem] leading-[1.45] sm:hidden" style={{ '--i': 1 } as React.CSSProperties}>
             {hero.lead}
           </p>
         </div>
 
         {/* Poster. The diver is wider than the card and comes out of it on the left. */}
         <div className="relative flex justify-end sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-center">
-          {/* On phones the card is sized from the viewport (and capped by its height), which
-              leaves the numbers their column. From 640px it takes 73% of its own column. */}
+          {/* On phones the card is just over half the screen wide, in a tall poster shape (about
+              1:1.9) so the composition fills the screen without stretching the picture. From 640px it
+              takes 73% of its own column. */}
           <div className="@container relative w-[var(--poster-w)] sm:w-[73%]">
             <div className="hero-card">
-              {/* The card is at least 3:4 (7:10 from 640px). The top padding is the diver's zone, so
+              {/* The card is at least 1:1.9 on phones (7:10 from 640px). The top padding is the diver's zone, so
                   the quote always starts below his chest: on a small card, where the words cannot
                   shrink any further, the card grows taller instead of the diver landing on them. */}
               <motion.div
                 style={{ transform: tilt }}
-                className="relative flex min-h-[133.33cqi] flex-col justify-end overflow-hidden rounded-[var(--radius)] bg-deep pt-[82cqi] shadow-[0_40px_70px_-30px_rgb(0_25_40/0.6)] ring-1 ring-white/10 sm:min-h-[142.86cqi] sm:pt-[91.5cqi]"
+                className="relative flex min-h-[190cqi] flex-col justify-end overflow-hidden rounded-[var(--radius)] bg-deep pt-[82cqi] shadow-[0_40px_70px_-30px_rgb(0_25_40/0.6)] ring-1 ring-white/10 sm:min-h-[142.86cqi] sm:pt-[91.5cqi]"
               >
                 <Image
                   src={texture}
@@ -180,16 +183,17 @@ export default function HeroPoster() {
 
         {/* What this is, and the two ways in. */}
         <div className="hero-rise col-span-2 sm:col-span-1 sm:col-start-1 sm:row-start-2 sm:self-start" style={{ '--i': 1 } as React.CSSProperties}>
-          <p className="max-w-[46ch] text-[0.95rem] leading-normal max-sm:hidden sm:text-base sm:leading-relaxed md:text-lg lg:text-xl lg:leading-relaxed">
+          <p className="max-w-[46ch] text-base leading-relaxed max-sm:hidden md:text-lg lg:text-xl lg:leading-relaxed">
             {hero.lead}
           </p>
-          <div className="flex flex-wrap gap-3 sm:mt-7">
-            <a href={cta.join.href} className="btn btn-primary">
+          {/* Phones: the two buttons share one full-width row under the poster and the text. */}
+          <div className="grid grid-cols-2 gap-3 sm:mt-7 sm:flex sm:flex-wrap">
+            <a href={cta.join.href} className="btn btn-primary justify-center">
               {cta.join.label}
               <ArrowRightIcon size={18} weight="bold" />
             </a>
-            <a href={cta.watch.href} className="btn btn-ghost">
-              {cta.watch.label}
+            <a href={cta.news.href} className="btn btn-ghost justify-center">
+              {cta.news.label}
             </a>
           </div>
         </div>

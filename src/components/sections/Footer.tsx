@@ -1,10 +1,12 @@
 import Image from 'next/image';
+import Streaks from '@/components/ui/Streaks';
 import logo from '@/assets/logo.png';
 import { nav, partners, site, socials } from '@/content/site';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line">
+    <footer className="relative isolate border-t border-line">
+      <Streaks side="right" />
       <div className="shell grid gap-12 py-16 md:grid-cols-12">
         <div className="md:col-span-5">
           <div className="flex items-center gap-4">

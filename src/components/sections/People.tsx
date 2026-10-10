@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Streaks from '@/components/ui/Streaks';
 import Reveal from '@/components/ui/Reveal';
 import YouTube from '@/components/ui/YouTube';
 import pattern from '@/assets/pattern.png';
@@ -7,7 +8,8 @@ import { people } from '@/content/site';
 export default function People() {
   const { igor, nenad, family, durovic, club } = people;
   return (
-    <section id="skakaci" className="shell py-24 md:py-32">
+    <section id="skakaci" className="relative isolate shell py-24 md:py-32">
+      <Streaks side="right" />
       <h2 className="display max-w-[14ch] text-[clamp(2.5rem,5.5vw,5rem)]">Ljudi sa ograde</h2>
 
       <div className="mt-12 grid gap-4 md:mt-16 lg:grid-cols-6 lg:grid-rows-[minmax(0,1fr)_minmax(0,1fr)_auto]">
@@ -15,8 +17,8 @@ export default function People() {
         <Reveal className="flex flex-col lg:col-span-3 lg:row-span-2">
           <YouTube id={igor.photo.id} frame={igor.photo.frame} title={`${igor.name} na Gradskom mostu`} posterOnly className="aspect-[4/3] lg:aspect-auto lg:min-h-[420px] lg:flex-1" />
           <div className="pt-5">
-            <p className="text-sm font-semibold text-accent-ink">{igor.role}</p>
-            <h3 className="display mt-2 text-4xl md:text-5xl">{igor.name}</h3>
+            <h3 className="display text-5xl md:text-6xl">{igor.name}</h3>
+            <p className="mt-1 text-lg text-muted">{igor.role}</p>
             <p className="mt-3 max-w-[52ch] leading-relaxed text-muted">{igor.text}</p>
           </div>
         </Reveal>
@@ -25,8 +27,8 @@ export default function People() {
         <Reveal delay={0.06} className="flex flex-col lg:col-span-2 lg:row-span-2">
           <YouTube id={nenad.photo.id} frame={nenad.photo.frame} title={`${nenad.name}, skok sa Gradskog mosta`} posterOnly className="aspect-[4/3] lg:aspect-auto lg:min-h-[420px] lg:flex-1" />
           <div className="pt-5">
-            <p className="text-sm font-semibold text-accent-ink">{nenad.role}</p>
-            <h3 className="display mt-2 text-3xl md:text-4xl">{nenad.name}</h3>
+            <h3 className="display text-4xl md:text-5xl">{nenad.name}</h3>
+            <p className="mt-1 text-lg text-muted">{nenad.role}</p>
             <p className="mt-3 leading-relaxed text-muted">{nenad.text}</p>
           </div>
         </Reveal>
@@ -43,9 +45,10 @@ export default function People() {
         </Reveal>
 
         {/* Family */}
-        <Reveal className="rounded-[var(--radius)] border border-line p-6 md:p-10 lg:col-span-4">
-          <h3 className="display text-3xl md:text-5xl">{family.title}</h3>
-          <p className="mt-4 max-w-[60ch] text-lg leading-relaxed text-muted">{family.text}</p>
+        {/* Family: no box, just the words, set large, beside Đurović's photo. */}
+        <Reveal className="flex flex-col justify-center py-6 lg:col-span-4 lg:py-10 lg:pr-12">
+          <h3 className="display text-5xl md:text-7xl">{family.title}</h3>
+          <p className="mt-5 max-w-[46ch] text-xl leading-relaxed text-muted">{family.text}</p>
         </Reveal>
 
         {/* Đurović */}
@@ -56,8 +59,8 @@ export default function People() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-            <p className="text-sm font-semibold opacity-80">{durovic.role}</p>
-            <h3 className="display mt-1 text-3xl">{durovic.name}</h3>
+            <h3 className="display text-4xl">{durovic.name}</h3>
+            <p className="mt-1 opacity-80">{durovic.role}</p>
             <p className="mt-2 text-sm leading-relaxed opacity-85">{durovic.text}</p>
           </div>
         </Reveal>

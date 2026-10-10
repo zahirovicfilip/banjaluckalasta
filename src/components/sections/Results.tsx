@@ -1,4 +1,5 @@
 import Reveal from '@/components/ui/Reveal';
+import Streaks from '@/components/ui/Streaks';
 import { results } from '@/content/site';
 
 const podiumHeight: Record<number, string> = { 1: 'h-56 md:h-72', 2: 'h-40 md:h-52', 3: 'h-32 md:h-40' };
@@ -7,7 +8,8 @@ const podiumOrder = [2, 1, 3];
 export default function Results() {
   const { latest, bridge, away } = results;
   return (
-    <section id="rezultati" className="shell py-24 md:py-32">
+    <section id="rezultati" className="relative isolate shell py-24 md:py-32">
+      <Streaks side="left" />
       <div className="grid gap-16 lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-6">
           <h2 className="display text-[clamp(2.5rem,5.5vw,5rem)]">Gradski most {latest.year}.</h2>
@@ -37,7 +39,7 @@ export default function Results() {
 
         <div className="grid gap-12 sm:grid-cols-2 lg:col-span-6 lg:gap-8">
           <div>
-            <h3 className="border-b border-line pb-3 text-sm font-semibold text-muted">Ranije sa Gradskog mosta</h3>
+            <h3 className="display text-3xl">Ranije sa mosta</h3>
             <ul className="mt-2">
               {bridge.map((b) => (
                 <li key={b.year} className="grid grid-cols-[4.5rem_1fr] gap-3 py-3">
@@ -51,7 +53,7 @@ export default function Results() {
             </ul>
           </div>
           <div>
-            <h3 className="border-b border-line pb-3 text-sm font-semibold text-muted">Van Banjaluke</h3>
+            <h3 className="display text-3xl">Van Banjaluke</h3>
             <ul className="mt-2">
               {away.map((a) => (
                 <li key={a.place} className="py-3">
