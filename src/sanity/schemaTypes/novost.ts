@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
+import { youtubeId } from '../youtube';
 
 /** "Šampionat na Đetinji" → "sampionat-na-djetinji": web addresses without č, ć, š, ž, đ. */
 export function slugify(input: string) {
@@ -12,8 +13,6 @@ export function slugify(input: string) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 80);
 }
-
-const youtubeId = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/;
 
 /**
  * One news post. What the club's admin fills in, in the Studio at /studio:
@@ -139,8 +138,3 @@ export const novost = defineType({
     }),
   },
 });
-
-/** The 11-character YouTube ID from any kind of YouTube link, or null. */
-export function youtubeIdFrom(url: string | undefined) {
-  return url?.match(youtubeId)?.[1] ?? null;
-}

@@ -9,7 +9,7 @@ import SanityImage from '@/components/novosti/SanityImage';
 import YouTube from '@/components/ui/YouTube';
 import { sanityFetch, urlFor } from '@/sanity/client';
 import { formatDatum, novostQuery, slugsQuery, type Novost } from '@/sanity/queries';
-import { youtubeIdFrom } from '@/sanity/schemaTypes/novost';
+import { youtubeIdFrom } from '@/sanity/youtube';
 
 export const revalidate = 60;
 
