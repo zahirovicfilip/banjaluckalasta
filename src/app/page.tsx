@@ -1,10 +1,7 @@
 import Nav from '@/components/Nav';
 import Hero from '@/components/sections/Hero';
 import Story from '@/components/sections/Story';
-import Technique from '@/components/sections/Technique';
 import Winners from '@/components/sections/Winners';
-import People from '@/components/sections/People';
-import Results from '@/components/sections/Results';
 import Quote from '@/components/sections/Quote';
 import Videos from '@/components/sections/Videos';
 import Camp from '@/components/sections/Camp';
@@ -32,9 +29,6 @@ export default function Home() {
         <KampInterlude />
         <Camp />
         <Story />
-        <Technique />
-        <People />
-        <Results />
         {/* The quote poster lives in the hero unless the animated hero is switched on. */}
         {hero.animated && <Quote />}
         <Videos />

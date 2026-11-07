@@ -1,11 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
+import { ArrowDownIcon } from '@phosphor-icons/react';
 import { motion, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from 'motion/react';
-import Reveal from '@/components/ui/Reveal';
 import Streaks from '@/components/ui/Streaks';
-import { bridgePhoto, story } from '@/content/site';
-import { ytImage } from '@/lib/youtube';
+import { story } from '@/content/site';
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 /** Strong ease-out, for words arriving. */
@@ -110,6 +109,9 @@ function Year({ year, first, lastCard, pos, still }: { year: string; first: numb
  * one comes. The chapter's year sits above its sentences and changes with the chapter. The
  * scroll position goes through a light spring, so a mouse wheel's jumps read as one smooth pass.
  *
+ * The skip button in the corner jumps straight past the section. It jumps rather than scrolls:
+ * a smooth scroll through this much height would flash every sentence by.
+ *
  * Screen readers get the whole story as plain text instead (the stage is hidden from them).
  * Under reduced motion the sentences still take turns, but simply appear and disappear, without
  * rising, blurring or word by word timing.
@@ -122,33 +124,40 @@ export default function Story() {
   const raw = useTransform(scrollYProgress, (p) => p * span);
   const pos = useSpring(raw, { stiffness: 140, damping: 30, mass: 0.5 });
 
+  // Lands with the section's end right under the navbar, so none of the stage is left showing.
+  function skip() {
+    const end = section.current?.getBoundingClientRect().bottom ?? 0;
+    const bar = document.querySelector('[data-navbar]')?.getBoundingClientRect().bottom ?? 0;
+    window.scrollBy({ top: end - bar, behavior: 'instant' });
+  }
+
   // The title card: there from the start, it dissolves like a sentence.
   const titleOpacity = useTransform(pos, (p) => 1 - leaving(p, 0));
   const titleTransform = useTransform(pos, (p) => (still ? 'none' : `translate3d(0, ${(-leaving(p, 0) * 0.15).toFixed(3)}em, 0)`));
   const titleFilter = useTransform(pos, (p) => (still ? 'none' : `blur(${(leaving(p, 0) * 8).toFixed(2)}px)`));
 
   return (
-    <>
-      <section
-        ref={section}
-        aria-labelledby="prica-naslov"
-        className="relative isolate"
-        style={{ height: `calc(100svh + ${span * STEP}svh)` }}
-      >
-        {/* For screen readers: the whole story, in order. */}
-        <div className="sr-only">
-          <h2 id="prica-naslov">{story.title}</h2>
-          {story.chapters.map((c) => (
-            <div key={c.year}>
-              <h3>{c.year}.</h3>
-              {c.beats.map((b) => (
-                <p key={b}>{b}</p>
-              ))}
-            </div>
-          ))}
-        </div>
+    <section
+      ref={section}
+      aria-labelledby="prica-naslov"
+      className="relative isolate"
+      style={{ height: `calc(100svh + ${span * STEP}svh)` }}
+    >
+      {/* For screen readers: the whole story, in order. */}
+      <div className="sr-only">
+        <h2 id="prica-naslov">{story.title}</h2>
+        {story.chapters.map((c) => (
+          <div key={c.year}>
+            <h3>{c.year}.</h3>
+            {c.beats.map((b) => (
+              <p key={b}>{b}</p>
+            ))}
+          </div>
+        ))}
+      </div>
 
-        <div aria-hidden className="sticky top-0 h-[100svh] overflow-hidden">
+      <div className="sticky top-0 h-[100svh] overflow-hidden">
+        <div aria-hidden className="absolute inset-0">
           <Streaks side="right" />
 
           {/* The title card. */}
@@ -171,21 +180,18 @@ export default function Story() {
             </div>
           </div>
         </div>
-      </section>
 
-      <div className="shell pb-24 md:pb-32">
-        <Reveal>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={ytImage(bridgePhoto.id, bridgePhoto.frame)}
-            alt={bridgePhoto.alt}
-            width={1280}
-            height={720}
-            loading="lazy"
-            className="aspect-[21/9] w-full rounded-[var(--radius)] object-cover"
-          />
-        </Reveal>
+        <div className="shell pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] flex justify-end">
+          <button
+            type="button"
+            onClick={skip}
+            className="btn btn-ghost pointer-events-auto"
+          >
+            {story.skip}
+            <ArrowDownIcon size={18} weight="bold" />
+          </button>
+        </div>
       </div>
-    </>
+    </section>
   );
 }

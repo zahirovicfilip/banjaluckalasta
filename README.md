@@ -13,14 +13,14 @@ npm run media      # rebuild web images and videos from the transfer folder (mac
 
 | Path | What |
 |---|---|
-| `src/content/site.ts` | **All copy and data.** Text, results, people, camp programme, clip list, links. |
+| `src/content/site.ts` | **All copy and data.** Text, camp programme, clip list, links. |
 | `src/app/page.tsx` | Section order |
 | `src/app/globals.css` | Design tokens (brand colors, radius, display type), light/dark |
 | `src/components/sections/Interlude.tsx`, `Interludes.tsx` | The chapter breaks after the hero and after the winners: still words, falling photos |
 | `src/components/lasta/` | The original hero engine (untouched), from `lasta-hero-nextjs.zip` |
 | `src/components/sections/` | One file per section |
 | `src/sanity/`, `sanity.config.ts` | News: the Sanity connection, the post type and the Studio setup |
-| `src/components/ui/` | `Reveal` (scroll fade-in), `BgVideo` (lazy background video), `Drift` (scroll drift), `YouTube` (video facade), `LastaMark` (diver silhouette) |
+| `src/components/ui/` | `Reveal` (scroll fade-in), `BgVideo` (lazy background video), `Drift` (scroll drift), `YouTube` (video facade) |
 | `src/assets/` | Web-sized images built from the club's material: logo, camp badge, cutout, textures, camp photos, interlude stills, airsoft images |
 | `public/media/` | Web-sized videos and posters: drone fly-in (`kamp-*`), drone orbit past the tower (`tower-*`), jump clips (`skok-NN`) |
 | `src/app/icon.png`, `apple-icon.png`, `opengraph-image.jpg` | Favicon and share image, built from the official logo |
@@ -36,7 +36,7 @@ Taken from the club's 2026 brochure and logo PSD:
 - Navy `#003156`, blue `#009DE1`, deep `#001928`. The blue is the one accent.
 - The torn-paper texture appears behind the quote and on the stat tile.
 - Official logo in the nav, footer, favicon and share image.
-- The navbar is a floating pill (same shape as the buttons) in the flat brand blue. Left: the crest, hanging off the bottom edge, and the name as a two-line miniature of the hero title. Right: from 1024px up the six links as darker pills with white labels; below that a menu button that opens a full-screen blue menu (a circle grows out of the button until it covers the screen, the links rise in behind it, closing runs it back). There is no "Prijavi se" button in the bar. Below 360px the crest, the name and the gap tighten slightly so the menu button stays inside the bar.
+- The navbar is a straight bar in the flat brand blue, edge to edge and flush with the top of the screen, its content on the page grid. Left: the crest, hanging off the bottom edge, and the name as a two-line miniature of the hero title. Right: from 1024px up the six links as darker pills with white labels; below that a menu button that opens a full-screen blue menu (a circle grows out of the button until it covers the screen, the links rise in behind it, closing runs it back). There is no "Prijavi se" button in the bar.
 - Type (Google Fonts via `next/font`, all with latin-ext for č ć š ž đ): **Big Shoulders** for headlines and numbers (`.display`: heavy, upper case, no added tracking, line-height 0.9), **Geist** for reading text, and **Big Shoulders Stencil** only in the airsoft section (`font-stencil`). Reading text stays within about 45 to 75 characters a line (`max-w-[44ch]` to `[65ch]`) at a line-height near 1.5.
 - Background life, kept quiet: the brochure's torn-paper streaks bleed in faintly from one screen edge behind every section on a plain background, from the hero to the footer and on the news pages (`Streaks.tsx`, alternating left and right, drifting slower than the page; stronger in dark mode, where the navy of the pattern disappears), and a barely visible film grain sits over the whole site (`body::after` in `globals.css`).
 - No small upper-case labels above headings, and no boxed cards: sections group with space, type size and the odd hairline instead.
@@ -47,21 +47,18 @@ In the animated hero the diver is navy on light and blue on dark. That is one to
 ## Page flow
 
 1. **Hero** (poster): two headline numbers next to each other (73 years, 12 m) on the left, the brochure-style poster as a tall card on the right, at every width. Igor's cutout is wider than the card, so he leaves the frame. The card tilts toward the mouse, he slides the other way. From 640px the explanation and the buttons sit under the numbers. On phones the numbers sit at the foot of the poster, below the diver's head, with short labels (`short` in `hero.stats`), and the explanation and buttons run full width underneath. The quote always starts below the diver: on a small card the card grows taller instead of the words ending up under him. The name is in the navbar; the page title here is for screen readers and search engines only.
-   - The scroll-driven dive is still in the code (`HeroDive.tsx`), hidden. Set `hero.animated` to `true` in `site.ts` to bring it back; the quote poster then returns to its own section after the results.
+   - The scroll-driven dive is still in the code (`HeroDive.tsx`), hidden. Set `hero.animated` to `true` in `site.ts` to bring it back; the quote poster then returns to its own section after the story.
 2. **Pobjednici skokova** (`#pobjednici`): every winner from the board "Pobjednici skokova sa Gradskog mosta od 1979." plus 2025 and 2026, as a circular carousel of tall rounded cards, one per year. Each card has the year, the winner and one line on what Banja Luka lived through that year (`winners` in `site.ts`, each line checked against press or encyclopedia sources in October 2026). Five are on screen: the middle one at full size with the torn-paper pattern, one smaller card on each side, and one more on each side cut in half by the screen edge. It has no end: after 2026 comes 1979 again. It moves with a finger or mouse drag, a sideways trackpad scroll, the arrow keys, two buttons (from 768px) or a click on a side card, and settles on the nearest card. Below 768px the cards are too narrow for text, so they show the year upright and the winner and the city's line for the middle card sit under the carousel. The sizes live in `.era-rail` in `globals.css` and in `SHRINK` in `Winners.tsx`.
 3. **Kamp** (`#kamp`): the camp chapter, after the camp interlude.
    - Opener and programme share one stage (`CampStage.tsx`): the drone fly-in holds still behind them and dissolves into the orbit past the jump tower (`tower-*.mp4`) as the programme comes up. The camp badge flies from the opener into the navbar, takes the place of the name "Banjalučka lasta" through the programme, and hands it back when the finale comes up.
    - Programme (`CampProgram.tsx`): the visitor picks a day on a rail of seven buttons (tap, arrow keys, or swipe the day on a phone). The highlight pill and the day's photo, name, summary and full timetable move with critically damped springs, in the direction of travel, and can be interrupted at any point. All days share one spot as tall as the longest, so the page never shifts. Then the coaches.
    - Finale clips (`Reel.tsx`), then **Klub van mosta** (`Community.tsx`): a calm band in the surface tone, read top to bottom (title, one sentence, the Vrbas cleanup turnout as the one blue number, the two kinds of work in plain text), with two photos drifting at different speeds.
-4. **Kako je počelo** (`Story.tsx`, `story` in `site.ts`): the story told one sentence at a time. The section's screen holds still (sticky) while it is scrolled through, and the scroll plays it like captions: the title, then each sentence of 1936, 1953 and 2021 in turn. A sentence arrives word by word, holds to be read, dissolves upward with a touch of blur, and the next one comes; the chapter's year sits above and changes with the chapter. `STEP` sets the scroll per sentence. Screen readers get the whole story as plain text. Under reduced motion the sentences only fade. Then a wide shot of Gradski most.
-5. **Lasta** (`#lasta`): the technique in four steps.
-6. **Skakači** (`#skakaci`): bento with Igor, Nenad, the club stat on the torn-paper pattern, the Arsenić family and Igor Đurović.
-7. **Rezultati** (`#rezultati`): 2026 podium, earlier winners, results away from Banja Luka.
-8. **Quote**: only shown when the animated hero is on (otherwise the quote lives in the hero poster).
-9. **Video** (`#video`): three YouTube videos from Gradski most. The player only loads on click.
-10. **Prijava** (`#prijava`): join form with loading, success and error states, plus social links.
+4. **Kako je počelo** (`Story.tsx`, `story` in `site.ts`): the story told one sentence at a time. The section's screen holds still (sticky) while it is scrolled through, and the scroll plays it like captions: the title, then each sentence of 1936, 1953 and 2021 in turn. A sentence arrives word by word, holds to be read, dissolves upward with a touch of blur, and the next one comes; the chapter's year sits above and changes with the chapter. `STEP` sets the scroll per sentence. Screen readers get the whole story as plain text. Under reduced motion the sentences only fade. A **Preskoči** button in the corner jumps past the section.
+5. **Quote**: only shown when the animated hero is on (otherwise the quote lives in the hero poster).
+6. **Video** (`#video`): three YouTube videos from Gradski most. The player only loads on click.
+7. **Prijava** (`#prijava`): join form with loading, success and error states, plus social links.
 
-The navbar and footer links follow the same order (`nav` in `site.ts`): Pobjednici, Kamp, Lasta, Skakači, Rezultati, then Novosti.
+The navbar and footer links follow the same order (`nav` in `site.ts`): Pobjednici, Kamp, then Novosti.
 
 ### Airsoft „Arhangel Mihailo“ (`#airsoft`)
 
@@ -123,7 +120,7 @@ Video weights: jump clips are 720x1280 at about 1.4 Mbps (0.7 to 2 MB each); the
 - [ ] **Clip names.** Only two source clips were named (Dušan, Sanel). Names for the others would let the reel carry captions.
 - [ ] **Emblem of Republika Srpska.** It sits above the camp badge, as on the brochure. Confirm the wording of the patronage, or set `camp.showSeal` to `false`.
 - [ ] **Hero emblem text.** The animated emblem reads "Удружење"; the official logo reads "Спортско рекреативно удружење". The hero data would need regenerating to match.
-- [ ] **Photos.** The Igor Đurović card is still a placeholder. The Gradski most and people images are YouTube frames that belong to the uploaders. Camp photos for Wednesday, Friday, Saturday and Sunday are cropped out of the brochure, so originals would be sharper.
+- [ ] **Photos.** The video thumbnails are YouTube frames that belong to the uploaders. Camp photos for Wednesday, Friday, Saturday and Sunday are cropped out of the brochure, so originals would be sharper.
 - [ ] **Form delivery.** Wire `api/prijava` to e-mail, a Google Sheet or Notion.
 - [ ] **Contact and domain.** Add the club's e-mail and phone, set `site.url`.
 - [ ] **Facts to confirm** (see RESEARCH.md): bridge year 1930 or 1936, 1995 or 1996 rename, 2nd place 2026 (Bajrić or Brajić), partner list.

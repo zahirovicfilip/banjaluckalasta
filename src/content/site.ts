@@ -28,9 +28,6 @@ export const socials = [
 export const nav = [
   { label: 'Pobjednici', href: '/#pobjednici' },
   { label: 'Kamp', href: '/#kamp' },
-  { label: 'Lasta', href: '/#lasta' },
-  { label: 'Skakači', href: '/#skakaci' },
-  { label: 'Rezultati', href: '/#rezultati' },
   { label: 'Novosti', href: '/novosti' },
 ];
 
@@ -74,6 +71,7 @@ export const hero = {
  */
 export const story = {
   title: 'Kako je počelo',
+  skip: 'Preskoči',
   // Each sentence lights up word by word as it is scrolled into reading position (Story.tsx).
   chapters: [
     {
@@ -102,20 +100,6 @@ export const story = {
         'Predsjednik je Igor Arsenić, a ljeti udruženje vodi i trening kamp na Manjači.',
       ],
     },
-  ],
-};
-
-export const technique = {
-  title: 'Ruke iznad glave.',
-  intro:
-    'Banjalučka lasta se skače samo sa Gradskog mosta. Visina mosta i dubina Vrbasa odredili su njen odraz, let i ulazak u vodu.',
-  difference:
-    'Kod mostarske i užičke laste ruke idu iza tijela. Kod banjalučke idu iznad glave, a tijelo je ispruženo i izvijeno.',
-  phases: [
-    { name: 'Stav', text: 'Miran, čvrst stav na ogradi mosta. Sve počinje prije nego što se noge odvoje od kamena.' },
-    { name: 'Odraz', text: 'Odraz određuje cijeli let. Greška na mostu se ne može popraviti u zraku.' },
-    { name: 'Let', text: 'Ruke iznad glave, tijelo ispruženo. Cilj je zadržati položaj laste što je duže moguće.' },
-    { name: 'Ulazak', text: 'Ulazak u vodu uz što manje prskanja. Ispod mosta Vrbas je dubok dva do tri metra.' },
   ],
 };
 
@@ -180,62 +164,6 @@ export const winners = [
   { year: '2026', name: 'Igor Arsenić', city: 'Vrbas u maju ugošćuje Svjetsko prvenstvo u kajaku na divljim vodama i Evropsko prvenstvo u raftingu. Borac osvaja četvrtu titulu prvaka BiH.' },
 ];
 
-export const people = {
-  igor: {
-    name: 'Igor Arsenić',
-    role: 'Predsjednik udruženja',
-    text: 'Prvi skok sa šest godina. Sedam puta najljepša banjalučka lasta sa Gradskog mosta. Pobjednik skokova sa mosta na Đetinji u Užicu 2023.',
-    photo: { id: 'vn-va-dhUPA', frame: 'maxres1' as const },
-  },
-  nenad: {
-    name: 'Nenad Arsenić',
-    role: 'Legenda Gradskog mosta',
-    text: 'Osam puta prvo mjesto u banjalučkoj lasti. U 2026. ponovo na mostu, poslije devet godina pauze.',
-    photo: { id: 'OF_8684YXWE', frame: 'hqdefault' as const },
-  },
-  family: {
-    title: 'Porodica Arsenić',
-    text: 'Otac Nenad je osvajao pehare sa mosta. Danas skaču sinovi: Igor, Zvjezdan i Dušan. Na mostu 2022. bili su prvi, četvrti i peti.',
-  },
-  durovic: {
-    name: 'Igor Đurović',
-    role: 'Stari most, Mostar',
-    text: 'Najmlađi Banjalučanin na Starom mostu. Skače sa 23 metra u Neretvu i bio je među prvih deset 2026.',
-    image: 'https://picsum.photos/seed/lasta-mostar-neretva/900/1100?grayscale', // TODO: real photo
-  },
-  club: {
-    value: '13',
-    of: '22',
-    text: 'skakača na Gradskom mostu 2026. bilo je iz Banjaluke.',
-  },
-};
-
-export const results = {
-  latest: {
-    year: 2026,
-    date: '12. jul 2026.',
-    note: '22 skakača, 73. Ljeto na Vrbasu',
-    podium: [
-      { place: 1, name: 'Igor Arsenić', from: 'Banja Luka' },
-      { place: 2, name: 'Dino Bajrić', from: 'Sarajevo' }, // TODO: press also spells it "Brajić"
-      { place: 3, name: 'Miloš Kojić', from: 'Modriča' },
-    ],
-  },
-  bridge: [
-    { year: '2025', winner: 'Igor Arsenić', note: '24 skakača' },
-    { year: '2024', winner: 'Igor Arsenić', note: 'Najljepša lasta' },
-    { year: '2023', winner: 'Igor Arsenić', note: '70. Ljeto na Vrbasu' },
-    { year: '2022', winner: 'Igor Arsenić', note: 'Zvjezdan 4., Dušan 5.' },
-    { year: '2019', winner: 'Đorđe Gajić', note: 'Igor Arsenić 3.' },
-    { year: '2016', winner: 'Igor Arsenić', note: 'Gradski most' },
-  ],
-  away: [
-    { year: '2026', place: 'Mostar, Stari most', text: 'Igor Đurović među prvih deset, sa 23 metra.' },
-    { year: '2025', place: 'Makarska, Sveti Petar', text: 'Igor Arsenić, lasta sa stijene u Jadran.' },
-    { year: '2023', place: 'Užice, most na Đetinji', text: 'Igor Arsenić prvi, sa 16 metara.' },
-  ],
-};
-
 export const quote = {
   text: 'Ovo je prije svega jedan viteški, hrabri sport koji nije za svakoga.',
   author: 'Igor Arsenić',
@@ -249,13 +177,6 @@ export const videos = [
   { id: 'vn-va-dhUPA', frame: 'maxresdefault' as const, title: 'Najbolja banjalučka lasta 2024', who: 'Igor Arsenić' },
   { id: 'OF_8684YXWE', frame: 'maxres1' as const, title: 'Revijalni skok na Ljetu na Vrbasu', who: 'Nenad Arsenić' },
 ];
-
-/** Wide shot of Gradski most full of spectators, a frame from the 2025 video. */
-export const bridgePhoto = {
-  id: 'AMU1_urs3l8',
-  frame: 'maxres1' as const,
-  alt: 'Gradski most u Banjaluci, pun gledalaca, iznad Vrbasa',
-};
 
 /**
  * Trening kamp. Everything below comes from the club's 2026 brochure

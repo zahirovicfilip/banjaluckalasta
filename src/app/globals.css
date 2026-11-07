@@ -28,7 +28,7 @@
  * that slides over the one before it.
  * Z-index scale: a page that arrives over the one before it 10, phone menu 40,
  * nav 50, skip link 60.
- * The navbar is a floating pill in the flat brand blue.
+ * The navbar is a straight, edge-to-edge bar in the flat brand blue.
  */
 :root {
   --navy: #003156;
